@@ -1,0 +1,3 @@
+# Every skill name carries the `ds-` prefix
+
+The Agent Skills standard has one flat name space, and only Claude Code plugin installs add a namespace (`plugin:skill`); `npx skills`, `gh skill`, Codex and similar installers use the bare directory name. Common names such as `code-review` already exist in built-in commands and other popular skill sets, so a standalone install would collide. We therefore prefix every skill name (and its directory) with `ds-`, accepting the redundant `plugin:ds-…` form in Claude Code. Renaming later would break every existing install, which is why this is fixed up front.

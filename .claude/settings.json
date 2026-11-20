@@ -1,0 +1,12 @@
+{
+  "enabledPlugins": {
+    "mattpocock-skills@claude-plugins-official": true
+  },
+  "skillOverrides": {
+    "grill-me": "off",
+    "grill-with-docs": "off",
+    "grilling": "off",
+    "handoff": "off",
+    "domain-modeling": "off"
+  }
+}

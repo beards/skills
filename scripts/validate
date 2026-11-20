@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""Validate every skill in this repo. Run locally before committing; CI runs the same script.
+
+Repo conventions checked here (see AGENTS.md and docs/adr/):
+  - skills are flat: skills/<name>/SKILL.md, nothing nested deeper
+  - name == directory name, and starts with the `ds-` prefix
+  - license is MIT, SKILL.md is at most 500 lines, no README.md inside a skill
+  - local links in SKILL.md resolve; other files in a skill do not link on to further .md files
+  - every skill has a row in the root README.md
+Then the external validators: skills-ref (Agent Skills spec), `gh skill publish --dry-run`,
+and `npx skills add . --list` (the only install channel must discover every skill).
+"""
+
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SKILLS = ROOT / "skills"
+PREFIX = "ds-"
+MAX_LINES = 500
+LINK = re.compile(r"\]\(([^)#\s]+)(?:#[^)]*)?\)")
+
+errors: list[str] = []
+
+
+def fail(msg: str) -> None:
+    errors.append(msg)
+
+
+def frontmatter(text: str) -> dict[str, str]:
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return {}
+    fields: dict[str, str] = {}
+    for line in lines[1:]:
+        if line.strip() == "---":
+            return fields
+        m = re.match(r"^([A-Za-z][\w-]*):\s*(.*)$", line)
+        if m:
+            fields[m.group(1)] = m.group(2).strip().strip("'\"")
+    return {}
+
+
+def local_links(path: Path) -> list[str]:
+    return [t for t in LINK.findall(path.read_text()) if "://" not in t and not t.startswith("mailto:")]
+
+
+def check_skill(skill_dir: Path, readme: str) -> None:
+    rel = skill_dir.relative_to(ROOT)
+    skill_md = skill_dir / "SKILL.md"
+    if not skill_md.is_file():
+        fail(f"{rel}: missing SKILL.md (skills must sit directly at skills/<name>/SKILL.md)")
+        return
+    text = skill_md.read_text()
+    fm = frontmatter(text)
+    if not fm:
+        fail(f"{rel}/SKILL.md: missing or unterminated YAML frontmatter")
+        return
+    name = fm.get("name", "")
+    if name != skill_dir.name:
+        fail(f"{rel}/SKILL.md: name '{name}' must equal directory name '{skill_dir.name}'")
+    if not skill_dir.name.startswith(PREFIX):
+        fail(f"{rel}: name must start with '{PREFIX}' (ADR-0001)")
+    if "description" not in fm:
+        fail(f"{rel}/SKILL.md: missing description")
+    if fm.get("license") != "MIT":
+        fail(f"{rel}/SKILL.md: license must be MIT")
+    if len(text.splitlines()) > MAX_LINES:
+        fail(f"{rel}/SKILL.md: over {MAX_LINES} lines; move reference material into separate files")
+    for readme_file in skill_dir.rglob("README.md"):
+        fail(f"{readme_file.relative_to(ROOT)}: skill folders carry no README; document the skill in the root README")
+    for target in local_links(skill_md):
+        if not (skill_dir / target).exists():
+            fail(f"{rel}/SKILL.md: broken link '{target}'")
+    for md in skill_dir.rglob("*.md"):
+        if md == skill_md:
+            continue
+        for target in local_links(md):
+            if target.endswith(".md"):
+                fail(f"{md.relative_to(ROOT)}: links on to '{target}'; references must be one level deep from SKILL.md")
+    if f"`{skill_dir.name}`" not in readme:
+        fail(f"README.md: no row for `{skill_dir.name}` in the skills table")
+
+
+def run(cmd: list[str], label: str) -> str:
+    if shutil.which(cmd[0]) is None:
+        fail(f"{label}: '{cmd[0]}' not found on PATH")
+        return ""
+    proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    if proc.returncode != 0:
+        fail(f"{label} failed:\n{proc.stdout}{proc.stderr}")
+    return proc.stdout + proc.stderr
+
+
+def main() -> int:
+    readme = (ROOT / "README.md").read_text()
+    for stray in ROOT.rglob("SKILL.md"):
+        if stray.parent.parent != SKILLS:
+            fail(f"{stray.relative_to(ROOT)}: SKILL.md outside skills/<name>/")
+    skill_dirs = sorted(p for p in SKILLS.iterdir() if p.is_dir()) if SKILLS.is_dir() else []
+    for skill_dir in skill_dirs:
+        check_skill(skill_dir, readme)
+
+    if skill_dirs:
+        for skill_dir in skill_dirs:
+            run(["uvx", "--from", "skills-ref", "agentskills", "validate", str(skill_dir)],
+                f"skills-ref validate {skill_dir.name}")
+        run(["gh", "skill", "publish", "--dry-run"], "gh skill publish --dry-run")
+        listing = run(["npx", "--yes", "skills", "add", ".", "--list"], "npx skills add . --list")
+        for skill_dir in skill_dirs:
+            if listing and skill_dir.name not in listing:
+                fail(f"npx skills does not discover {skill_dir.name}")
+
+    for e in errors:
+        print(f"✗ {e}", file=sys.stderr)
+    print(f"{len(skill_dirs)} skill(s) checked, {len(errors)} error(s)")
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

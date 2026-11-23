@@ -21,8 +21,8 @@ Paths like `references/lenses.md` are relative to this skill's directory. When y
 
 1. **Target.** The argument is a PR number, PR URL, or branch, plus an optional `--base <ref>`. With no argument: if the current branch has a PR (`gh pr view --json number`), review that PR; otherwise review the current branch against the default branch. Other hosting platforms: use an installed skill or project instruction that covers fetching their PRs; otherwise ask the user for the base and head refs.
 2. **Target id.** `pr-<number>` or `branch-<name>` with `/` replaced by `-`.
-3. **State directory.** If the project's `AGENTS.md` or `CLAUDE.md` names a location for working or scratch files *and* `git check-ignore` confirms that location is ignored, use `<that location>/ds-code-review/<target-id>/`. Otherwise use `$(git rev-parse --git-common-dir)/ds-code-review/<target-id>/`. Call it `$STATE` below.
-4. **Resolve refs.** Fetch the head (`git fetch origin pull/<n>/head` for a GitHub PR) and the base. Record the head SHA and the merge-base.
+3. **State directory.** If the reviewed repo's `AGENTS.md` or `CLAUDE.md` names a location for working or scratch files *and* `git check-ignore` confirms that location is ignored, use `<that location>/ds-code-review/<target-id>/`. Otherwise use `$(git rev-parse --path-format=absolute --git-common-dir)/ds-code-review/<target-id>/`. Call it `$STATE` below; always pass it to subagents as an absolute path.
+4. **Resolve refs.** When the repo has a remote, fetch the head (`git fetch origin pull/<n>/head` for a GitHub PR) and the base; a local branch with no remote uses the local refs. Record the head SHA and the merge-base.
 5. **Preflight.** Empty diff (`git diff <merge-base> <head>`): stop and tell the user. PR merged or closed: tell the user and ask whether to review anyway. Draft PRs are reviewed normally.
 6. **Resume.** If `$STATE/state.md` exists:
    - same head SHA: continue from the first step not marked done;
@@ -44,7 +44,7 @@ Paths like `references/lenses.md` are relative to this skill's directory. When y
 
 Dispatch one subagent with `references/fact-pack.md`, `$STATE` and the target. It writes `$STATE/goal.md` and `$STATE/fact-pack.md`.
 
-Then confirm the Goal: show the user the Goal section of `goal.md` (a few lines) and ask whether it is right. Record their correction in `goal.md`. When nobody can answer (a CI or scheduled run), continue and set `confirmed: no` in `goal.md`; the report carries that flag at the top.
+Then confirm the Goal: show the user the Goal section of `goal.md` (a few lines) and ask whether it is right. Record their correction in `goal.md` and set `confirmed: yes`. When nobody can answer (a CI or scheduled run), set `confirmed: no` and continue; the report carries that flag at the top.
 
 ## Step 2: Find
 
@@ -55,11 +55,23 @@ Dispatch one finder subagent per Lens in parallel, each with `references/lenses.
 
 Each writes `$STATE/findings/<lens>.md`. When all are done, dispatch the `sweep` finder (same file, Lens `sweep`), which reads the others and writes `$STATE/findings/sweep.md`.
 
-Then merge: read every findings file, combine Findings that share a root cause and location (keep every Lens that raised it), and write `$STATE/findings/merged.md` with ids `F01`, `F02`, … . Carry each Suspicion over as its own entry, marked `suspicion`.
+Then merge by **root cause**: Findings that one fix would resolve become one entry, wherever they surface. Write each entry to its own file `$STATE/entries/<id>.md` (ids `F01`, `F02`, …):
+
+```markdown
+# <title naming the root cause>
+- kind: finding | suspicion
+- lenses: <every Lens that raised it>
+- cause: <file:line>
+- severity: <highest among the merged Findings>
+## Scenarios
+- <file:line where it surfaces>: <input or state> → <wrong result>
+```
+
+A Suspicion becomes its own `suspicion` entry unless it restates an entry already there.
 
 ## Step 3: Verify
 
-For every entry in `merged.md`, dispatch a fresh verifier subagent with `references/verify.md`, `$STATE` and the entry id. Run as many in parallel as the harness allows. Each writes `$STATE/verdicts/<id>.md`. A verifier receives only the entry, the fact pack and the code; it never sees the finders' reasoning.
+For every entry in `$STATE/entries/`, dispatch a fresh verifier subagent with `references/verify.md`, `$STATE` and the entry id; entries rated nit may share one verifier. Run as many in parallel as the harness allows. Each writes `$STATE/verdicts/<id>.md`. A verifier reads only its own entry file, the fact pack and the code, so it forms its own view of the problem.
 
 ## Step 4: Report
 
@@ -67,4 +79,4 @@ Write `$STATE/report.md` following `references/report.md`, from `goal.md` and th
 
 Post to the PR only when the user asks. Show them the exact text first and post after they approve it.
 
-Finally remove the worktrees you created (`git worktree remove`), keeping every file in `$STATE`.
+Finally remove the worktrees this skill created under `$STATE` (`git worktree remove --force`; they hold only build and test leftovers), keeping every other file in `$STATE`.

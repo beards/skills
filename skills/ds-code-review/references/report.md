@@ -1,15 +1,15 @@
 # Report
 
-Write `$STATE/report.md` in the user's language, in this order:
+Write `$STATE/report.md` in the language the user converses in (their agent instructions decide it; code and identifiers stay as they are), in this order. Every item is one root cause, the unit the verifiers judged; its scenarios are listed under it, never as separate items.
 
 1. **Header**: target and URL, head SHA, and the Goal in one or two sentences. When `goal.md` says `confirmed: no`, say so on the first line.
 2. **Verdict**: one line. `Ready to merge`, `Ready after should-fix items`, or `Not ready: <n> must-fix`.
 3. **must-fix**, then **should-fix**: CONFIRMED, not pre-existing, one block each:
 
    ```markdown
-   ### <title>
-   `file:line` · lens: <lenses>
-   <scenario: input → wrong result>
+   ### <title naming the root cause>
+   `cause file:line` · lens: <lenses>
+   - <where it surfaces>: <input → wrong result>
    Evidence: <the decisive evidence, short; method in one line>
    Fix: <smallest change>
    ```

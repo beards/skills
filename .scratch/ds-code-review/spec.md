@@ -94,3 +94,13 @@ Status: needs-triage
 - 動機：試跑時查 Jira ticket 花了 7 分鐘，使用者早已離開視窗，回來才發現卡在確認步驟。
 - 為了讓需要確認時能盡早問：Goal 與事實包拆成兩個 subagent 平行跑，`goal.md` 一出現就判斷是否需要確認，不必等事實包完成。
 - 再放寬（同日）：PR 敘述本身寫清楚目標（bug 則寫明症狀與預期行為）也算有明確來源，不問；只有必須從標題、commit、diff 拼湊推斷時才問。
+
+### 第 5 輪（2026-11-23）：降低成本（推翻 Q14「不指定模型」）
+
+- 模型分級為 Enhancement：skill 只寫 *strongest / standard / light* 三級，harness 能選模型時才套用。
+  - Goal 與事實包：standard。finder `goal`/`regression`/`edge`/`sweep`：strongest；`design`/`drift`：standard。
+  - verifier 依群組內最嚴重項：must-fix strongest、should-fix 與 suspicion standard（suspicion 需要深挖才能具體化）、nit light。
+- **effort 一律不降**：使用者在 PR #94 實驗（`stellar-updatemgr/.git/ds-code-review/pr-94/experiments/comparison.md`）顯示 Sonnet 5.5 medium 跳過 ticket 查詢與呼叫端搜尋，Sonnet 5.5 xhigh 與 Opus 5.5 xhigh 完整度相當。決定完整度的是 effort，不是模型。
+- verifier 依 `cause` 所在檔案分組（每組約五條上限），同組共用一個 verifier，減少重複讀程式碼；仍逐條獨立判斷。
+- 事實包呼叫端附上呼叫行原文，並加上可檢查的完成條件（每個改動符號都有呼叫端清單或 `none found`；每個 ticket 參照都在 Sources 或 Unresolved）。
+- 有 token 用量回報時，主流程記到 `$STATE/usage.md`，以便找出實際大宗。

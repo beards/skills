@@ -16,6 +16,8 @@ Paths like `references/lenses.md` are relative to this skill's directory. When y
 - **Everything lands on disk.** Every step writes its output to the state directory before the next step starts. Subagents write their full output to the named file and return only a one-line status (file path and counts). The state files, not your context, are the source of truth.
 - **Subagents are an Enhancement.** When you can dispatch subagents, run each step below in fresh subagents as described. When you cannot, do the step yourself, following the same reference file and writing the same files; finish and write each lens's file before starting the next.
 - **The reviewed branch is read-only.** All code reading, test runs and experiments happen in worktrees inside the state directory.
+- **Model tiers are an Enhancement.** When the harness lets you pick a subagent's model, use the tier the step names: *strongest*, *standard* or *light*. Effort is never lowered: run every subagent at high effort or above, because lower effort skips required work such as fetching tickets and searching call sites. A harness without a model choice uses its default for every step.
+- **Record usage.** When the harness reports a subagent's token use, append `<step> | <lens or entry ids> | <tier> | <tokens>` to `$STATE/usage.md`.
 
 ## Step 0: Target, state, resume
 
@@ -42,7 +44,7 @@ Paths like `references/lenses.md` are relative to this skill's directory. When y
 
 ## Step 1: Goal and fact pack
 
-Dispatch two subagents with `references/fact-pack.md`, `$STATE` and the target: one for its section 1, which writes `$STATE/goal.md`, and one for its section 2, which writes `$STATE/fact-pack.md`. Run them in parallel when you can.
+Dispatch two *standard*-tier subagents with `references/fact-pack.md`, `$STATE` and the target: one for its section 1, which writes `$STATE/goal.md`, and one for its section 2, which writes `$STATE/fact-pack.md`. Run them in parallel when you can.
 
 As soon as `goal.md` exists, set its `confirmed:` line by its `source:`:
 
@@ -53,10 +55,10 @@ As soon as `goal.md` exists, set its `confirmed:` line by its `source:`:
 
 Dispatch one finder subagent per Lens in parallel, each with `references/lenses.md`, its Lens name and `$STATE`:
 
-- `goal`, `regression`, `edge`, `design` always;
-- `drift` only when `fact-pack.md` lists base commits that touch the same files or features.
+- `goal`, `regression`, `edge` (*strongest*) and `design` (*standard*) always;
+- `drift` (*standard*) only when `fact-pack.md` lists base commits that touch the same files or features.
 
-Each writes `$STATE/findings/<lens>.md`. When all are done, dispatch the `sweep` finder (same file, Lens `sweep`), which reads the others and writes `$STATE/findings/sweep.md`.
+Each writes `$STATE/findings/<lens>.md`. When all are done, dispatch the `sweep` finder (*strongest*; same file, Lens `sweep`), which reads the others and writes `$STATE/findings/sweep.md`.
 
 Then merge by **root cause**: Findings that one fix would resolve become one entry, wherever they surface. Write each entry to its own file `$STATE/entries/<id>.md` (ids `F01`, `F02`, …):
 
@@ -82,7 +84,7 @@ Then match against **prior comments**. Only now, after every finder has finished
 
 ## Step 3: Verify
 
-For every entry in `$STATE/entries/`, dispatch a fresh verifier subagent with `references/verify.md`, `$STATE` and the entry id; entries rated nit may share one verifier. Run as many in parallel as the harness allows. Each writes `$STATE/verdicts/<id>.md`. A verifier reads only its own entry file, `goal.md`, the fact pack and the code, so it forms its own view of the problem.
+Group the entries in `$STATE/entries/` by the file of their `cause`, and split a group when it grows past about five entries. Dispatch one fresh verifier subagent per group with `references/verify.md`, `$STATE` and the group's entry ids, at the tier of the group's most severe entry: must-fix *strongest*, should-fix or suspicion *standard*, nit *light*. Run as many in parallel as the harness allows. A verifier writes one `$STATE/verdicts/<id>.md` per entry. It reads only its own entry files, `goal.md`, the fact pack and the code, so it forms its own view of each problem.
 
 ## Step 4: Report
 

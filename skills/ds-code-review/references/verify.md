@@ -1,12 +1,12 @@
-# Verifying one Finding
+# Verifying Findings
 
-You receive one entry, `$STATE/entries/<id>.md`. Your job is to **try to refute it**. Start from `$STATE/goal.md` and `$STATE/fact-pack.md`, and read the actual code at head yourself.
+You receive one or more entries, `$STATE/entries/<id>.md`, usually rooted in the same file. Judge each entry on its own: your job is to **try to refute it**. Start from `$STATE/goal.md` and `$STATE/fact-pack.md`, and read the actual code at head yourself.
 
 ## Gather evidence
 
 Pick the strongest evidence the Finding allows:
 
-1. **Reproduce.** Write a failing test or a small script that shows the scenario. Work in your own worktree: `git worktree add --detach $STATE/worktrees/<id> <head sha>`. A verifier handling several nit entries uses the first entry's id. To compare with the old behaviour, add `$STATE/worktrees/<id>-base` at the merge-base. Keep scripts inside these worktrees and remove them with `git worktree remove --force` when done.
+1. **Reproduce.** Write a failing test or a small script that shows the scenario. Work in your own worktree: `git worktree add --detach $STATE/worktrees/<id> <head sha>`. A verifier handling several entries makes one worktree named after the first entry's id. To compare with the old behaviour, add `$STATE/worktrees/<id>-base` at the merge-base. Keep scripts inside these worktrees and remove them with `git worktree remove --force` when done.
 2. **Run** the existing tests, a local build, or the program itself. A missing runner can be installed inside your worktree (a virtualenv, `npx`, `uvx`); when that is not possible, say so under Method.
 3. **Trace** the code path line by line, quoting each `file:line` that carries the scenario.
 4. **Point at the thing itself**: the existing utility for a reinvented wheel, the documented rule for a convention breach, the base commit for drift.
@@ -41,4 +41,4 @@ pre-existing: yes | no                     (CONFIRMED only)
 <the smallest change that resolves it>
 ```
 
-Return one line: the path and the verdict.
+Return one line: each entry id with its verdict.

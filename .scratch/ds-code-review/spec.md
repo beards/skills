@@ -104,3 +104,12 @@ Status: needs-triage
 - verifier 依 `cause` 所在檔案分組（每組約五條上限），同組共用一個 verifier，減少重複讀程式碼；仍逐條獨立判斷。
 - 事實包呼叫端附上呼叫行原文，並加上可檢查的完成條件（每個改動符號都有呼叫端清單或 `none found`；每個 ticket 參照都在 Sources 或 Unresolved）。
 - 有 token 用量回報時，主流程記到 `$STATE/usage.md`，以便找出實際大宗。
+
+### 第 6 輪（2026-11-23）：步驟交給其他 agent 執行
+
+- 動機：Claude Code 帳號額度用完時，想把 verify 之類的步驟丟給 Codex。
+- 分層：skill 只提供「步驟可外派」的接口；「哪一步交給誰」寫在使用者或專案的 agent 指令（`AGENTS.md`／`CLAUDE.md`），不寫進 skill，也不放到 workflow（Orchestrator skill）——派給誰是環境決定的（帳號、已裝 CLI、額度），不是流程邏輯，而且單獨跑 skill 時也要能用。
+- 規則：指令中為某步驟（`goal-and-facts`／`find`／`verify`／`report`，沿用 `state.md` 名稱）指定執行指令時，該步驟的 subagent 改經該指令派出，輸入、輸出檔與一行狀態回報不變；主流程確認輸出檔存在才打勾。
+- `usage.md`：tier 欄記指令名稱，無 token 回報記 `-`。
+- 附帶好處：finder 與 verifier 用不同家模型，盲點較不重疊。
+- 未驗證：Codex `workspace-write` 沙箱能否寫入 `.git/` 下的 `$STATE`；沙箱等級由使用者在自己的指令中決定。

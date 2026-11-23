@@ -17,7 +17,8 @@ Paths like `references/lenses.md` are relative to this skill's directory. When y
 - **Subagents are an Enhancement.** When you can dispatch subagents, run each step below in fresh subagents as described. When you cannot, do the step yourself, following the same reference file and writing the same files; finish and write each lens's file before starting the next.
 - **The reviewed branch is read-only.** All code reading, test runs and experiments happen in worktrees inside the state directory.
 - **Model tiers are an Enhancement.** When the harness lets you pick a subagent's model, use the tier the step names: *strongest*, *standard* or *light*. Effort is never lowered: run every subagent at high effort or above, because lower effort skips required work such as fetching tickets and searching call sites. A harness without a model choice uses its default for every step.
-- **Record usage.** When the harness reports a subagent's token use, append `<step> | <lens or entry ids> | <tier> | <tokens>` to `$STATE/usage.md`.
+- **Steps can run elsewhere.** When the user's or project's agent instructions name a command for running a step (`goal-and-facts`, `find`, `verify`, `report`), dispatch that step's subagents through it, giving each the same reference file (absolute path), `$STATE` and inputs, and asking for the same output files and one-line status. Check the output files exist before ticking the step.
+- **Record usage.** When the harness reports a subagent's token use, append `<step> | <lens or entry ids> | <tier> | <tokens>` to `$STATE/usage.md`. For a step run through an instructed command, write the command's name as the tier and `-` when it reports no tokens.
 
 ## Step 0: Target, state, resume
 

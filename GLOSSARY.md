@@ -36,7 +36,7 @@ Harness-specific behaviour (for example subagents) that a skill uses when availa
 ## Review
 
 **Goal**:
-What a change under review set out to achieve (a feature to add or a bug to fix), confirmed by the user before the review proceeds.
+What a change under review set out to achieve (a feature to add or a bug to fix), taken from its tickets or specs, or confirmed by the user when only the change itself hints at it.
 _Avoid_: Intent, purpose
 
 **Fact pack**:

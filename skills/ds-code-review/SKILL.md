@@ -42,9 +42,12 @@ Paths like `references/lenses.md` are relative to this skill's directory. When y
 
 ## Step 1: Goal and fact pack
 
-Dispatch one subagent with `references/fact-pack.md`, `$STATE` and the target. It writes `$STATE/goal.md` and `$STATE/fact-pack.md`.
+Dispatch two subagents with `references/fact-pack.md`, `$STATE` and the target: one for its section 1, which writes `$STATE/goal.md`, and one for its section 2, which writes `$STATE/fact-pack.md`. Run them in parallel when you can.
 
-Then confirm the Goal: show the user the Goal section of `goal.md` (a few lines) and ask whether it is right. Record their correction in `goal.md` and set `confirmed: yes`. When nobody can answer (a CI or scheduled run), set `confirmed: no` and continue; the report carries that flag at the top.
+As soon as `goal.md` exists, set its `confirmed:` line by its `source:`:
+
+- `source: external` (a ticket, spec or design doc states what the change must achieve): set `confirmed: not-needed` and carry on without asking.
+- `source: pr-only` (only the PR itself, its commits and diff hint at the Goal): show the user the Goal section (a few lines) and ask whether it is right. Record their correction and set `confirmed: yes`. When nobody can answer (a CI or scheduled run), set `confirmed: no` and carry on; the report carries that flag at the top.
 
 ## Step 2: Find
 

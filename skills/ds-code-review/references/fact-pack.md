@@ -1,6 +1,6 @@
 # Goal and fact pack
 
-You prepare the ground for a code review. You record facts; you make no judgement about whether the change is good. Code is checked out at `$STATE/head/`.
+You prepare the ground for a code review, doing the section named in your task. You record facts; you make no judgement about whether the change is good. Code is checked out at `$STATE/head/`.
 
 ## 1. Find the Goal
 
@@ -18,6 +18,7 @@ Read every source below; each one adds context:
 Write `$STATE/goal.md`:
 
 ```markdown
+source: external | pr-only
 confirmed: pending
 kind: feature | bugfix | refactor | other
 ## Goal
@@ -30,7 +31,9 @@ kind: feature | bugfix | refactor | other
 - <references you could not fetch>
 ```
 
-When no source states the Goal, infer it from the diff and commits and say so in the Goal section.
+`source: external` when a fetched ticket, spec or design doc beyond the PR states what the change must achieve; otherwise `pr-only`, and when nothing states the Goal at all, infer it from the diff and commits and say so in the Goal section.
+
+Return one line: the path and the `source:` value.
 
 ## 2. Build the fact pack
 
@@ -46,4 +49,4 @@ Write `$STATE/fact-pack.md` with these sections:
 
 Facts only. Opinions about the change do not belong in either file.
 
-Return one line: the two file paths.
+Return one line: the path.

@@ -6,8 +6,8 @@ You receive one entry, `$STATE/entries/<id>.md`. Your job is to **try to refute 
 
 Pick the strongest evidence the Finding allows:
 
-1. **Reproduce.** Write a failing test or a small script that shows the scenario. Work in your own worktree: `git worktree add --detach $STATE/worktrees/<id> <head sha>`. To compare with the old behaviour, add `$STATE/worktrees/<id>-base` at the merge-base. Keep scripts inside these worktrees and remove them with `git worktree remove --force` when done.
-2. **Run** the existing tests, a local build, or the program itself.
+1. **Reproduce.** Write a failing test or a small script that shows the scenario. Work in your own worktree: `git worktree add --detach $STATE/worktrees/<id> <head sha>`. A verifier handling several nit entries uses the first entry's id. To compare with the old behaviour, add `$STATE/worktrees/<id>-base` at the merge-base. Keep scripts inside these worktrees and remove them with `git worktree remove --force` when done.
+2. **Run** the existing tests, a local build, or the program itself. A missing runner can be installed inside your worktree (a virtualenv, `npx`, `uvx`); when that is not possible, say so under Method.
 3. **Trace** the code path line by line, quoting each `file:line` that carries the scenario.
 4. **Point at the thing itself**: the existing utility for a reinvented wheel, the documented rule for a convention breach, the base commit for drift.
 

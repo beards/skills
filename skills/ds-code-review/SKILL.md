@@ -38,7 +38,7 @@ Paths like `references/lenses.md` are relative to this skill's directory. When y
    - [ ] 4 report
    ```
 
-   Tick each box as its step finishes.
+   Tick a box only after that step's output files exist.
 
 ## Step 1: Goal and fact pack
 
@@ -62,7 +62,7 @@ Then merge by **root cause**: Findings that one fix would resolve become one ent
 - kind: finding | suspicion
 - lenses: <every Lens that raised it>
 - cause: <file:line>
-- severity: <highest among the merged Findings>
+- severity: <highest among the merged Findings; omit for a suspicion>
 ## Scenarios
 - <file:line where it surfaces>: <input or state> → <wrong result>
 ```
@@ -71,7 +71,7 @@ A Suspicion becomes its own `suspicion` entry unless it restates an entry alread
 
 ## Step 3: Verify
 
-For every entry in `$STATE/entries/`, dispatch a fresh verifier subagent with `references/verify.md`, `$STATE` and the entry id; entries rated nit may share one verifier. Run as many in parallel as the harness allows. Each writes `$STATE/verdicts/<id>.md`. A verifier reads only its own entry file, the fact pack and the code, so it forms its own view of the problem.
+For every entry in `$STATE/entries/`, dispatch a fresh verifier subagent with `references/verify.md`, `$STATE` and the entry id; entries rated nit may share one verifier. Run as many in parallel as the harness allows. Each writes `$STATE/verdicts/<id>.md`. A verifier reads only its own entry file, `goal.md`, the fact pack and the code, so it forms its own view of the problem.
 
 ## Step 4: Report
 

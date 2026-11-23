@@ -9,7 +9,7 @@ Report every problem you can tie to a concrete failure, however minor. Filtering
 ```markdown
 ### <short title>
 - lens: <your lens>
-- cause: <file:line at head where the faulty code is>
+- cause: <repo-relative file:line at head where the faulty code is>
 - surfaces: <file:line where the wrong result shows, when it differs>
 - scenario: <the input, state or sequence> → <the wrong result>
 - why: <the code that produces it, quoted briefly>

@@ -69,14 +69,22 @@ Then merge by **root cause**: Findings that one fix would resolve become one ent
 
 A Suspicion becomes its own `suspicion` entry unless it restates an entry already there.
 
+Then match against **prior comments**. Only now, after every finder has finished, read what others have already said on the PR, so that no finder or verifier is steered by it:
+
+1. Collect every comment that raises a problem into `$STATE/prior-comments.md`, one line each: URL, author, location, gist, and whether its thread is resolved or the author replied that it is fixed. On GitHub, read inline review comments (`gh api --paginate repos/{owner}/{repo}/pulls/<n>/comments`), reviews and conversation comments (`gh pr view <n> --json reviews,comments`), and thread resolution (`reviewThreads { isResolved }` through `gh api graphql`). Other platforms: use an installed skill or project instruction that covers them; otherwise skip this matching. Comments from people and bots both count; CI status notices and the PR author's own explanations do not.
+2. Compare each entry with them by root cause, the same test as merging: one fix resolves both. Record every match in `$STATE/prior-match.md` as `<id> | <kind> | <comment URL> | <entry title>`:
+   - `prior`: an open comment already raises it. Delete the entry file; it is neither verified nor reported as new.
+   - `extends`: the entry adds a materially different scenario or a clearly higher severity than the comment. Keep it.
+   - `reraised`: the comment's thread is resolved or marked fixed, yet the entry still finds the problem at head. Keep it.
+
 ## Step 3: Verify
 
 For every entry in `$STATE/entries/`, dispatch a fresh verifier subagent with `references/verify.md`, `$STATE` and the entry id; entries rated nit may share one verifier. Run as many in parallel as the harness allows. Each writes `$STATE/verdicts/<id>.md`. A verifier reads only its own entry file, `goal.md`, the fact pack and the code, so it forms its own view of the problem.
 
 ## Step 4: Report
 
-Write `$STATE/report.md` following `references/report.md`, from `goal.md` and the verdicts. Reply to the user in their language with: the one-line merge verdict, counts per severity, the must-fix titles, and the path to `report.md`.
+Write `$STATE/report.md` following `references/report.md`, from `goal.md`, the verdicts and `prior-match.md`. Reply to the user in their language with: the one-line merge verdict, counts per severity, the must-fix titles, and the path to `report.md`.
 
-Post to the PR only when the user asks. Show them the exact text first and post after they approve it.
+Post to the PR only when the user asks. Show them the exact text first and post after they approve it. A post leaves out the `prior` matches, which others have already raised.
 
 Finally remove the worktrees this skill created under `$STATE` (`git worktree remove --force`; they hold only build and test leftovers), keeping every other file in `$STATE`.

@@ -57,5 +57,9 @@ A concern too vague to be a Finding, handed to verification rather than reported
 **Verdict**:
 The outcome of verifying a Finding: confirmed with evidence, refuted, or unverifiable.
 
+**Prior comment**:
+A comment by someone other than the change's author, person or bot, that already raises a problem on the change under review.
+_Avoid_: Existing review, other feedback
+
 **Pre-existing problem**:
 A problem the change did not introduce, expose further, or make easier to trigger.

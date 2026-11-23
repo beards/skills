@@ -14,10 +14,13 @@ Write `$STATE/report.md` in the language the user converses in (their agent inst
    Fix: <smallest change>
    ```
 
+   When `prior-match.md` marks the item `extends` or `reraised`, add a line linking the comment: "Extends <link>" or "Raised before and marked resolved, still present at head: <link>".
+
    For a GitHub PR, link locations as permalinks with the full head SHA.
 4. **nit**: inside `<details><summary>nit (<n>)</summary>…</details>`, one line each.
 5. **Unverifiable**: one line each, with what would settle it.
-6. **Pre-existing problems**: one line each.
-7. **Stats**: Findings raised, refuted, confirmed, unverifiable; path to `$STATE`.
+6. **Already raised**: the `prior` matches, one line each with the comment's link. They were not verified.
+7. **Pre-existing problems**: one line each.
+8. **Stats**: Findings raised, already raised by others, refuted, confirmed, unverifiable; path to `$STATE`.
 
 Refuted Findings stay out of the report; their verdict files remain in `$STATE/verdicts/`.

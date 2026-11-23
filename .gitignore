@@ -1,3 +1,5 @@
 .DS_Store
 __pycache__/
 .claude/settings.local.json
+# research notes quoting third-party prompt text; local only
+.scratch/**/prior-art.md

@@ -18,7 +18,7 @@ Read every source below; each one adds context:
 Write `$STATE/goal.md`:
 
 ```markdown
-source: external | pr-only
+source: stated | inferred
 confirmed: pending
 kind: feature | bugfix | refactor | other
 ## Goal
@@ -31,7 +31,7 @@ kind: feature | bugfix | refactor | other
 - <references you could not fetch>
 ```
 
-`source: external` when a fetched ticket, spec or design doc beyond the PR states what the change must achieve; otherwise `pr-only`, and when nothing states the Goal at all, infer it from the diff and commits and say so in the Goal section.
+`source: stated` when the PR description, a fetched ticket, a spec or a design doc says plainly what the change must achieve (for a bug: the symptom and the expected behaviour). Otherwise `source: inferred`: piece the Goal together from the title, commits and diff, and say so in the Goal section.
 
 Return one line: the path and the `source:` value.
 

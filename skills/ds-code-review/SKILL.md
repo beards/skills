@@ -46,8 +46,8 @@ Dispatch two subagents with `references/fact-pack.md`, `$STATE` and the target: 
 
 As soon as `goal.md` exists, set its `confirmed:` line by its `source:`:
 
-- `source: external` (a ticket, spec or design doc states what the change must achieve): set `confirmed: not-needed` and carry on without asking.
-- `source: pr-only` (only the PR itself, its commits and diff hint at the Goal): show the user the Goal section (a few lines) and ask whether it is right. Record their correction and set `confirmed: yes`. When nobody can answer (a CI or scheduled run), set `confirmed: no` and carry on; the report carries that flag at the top.
+- `source: stated` (the PR description, a ticket, a spec or a design doc states what the change must achieve): set `confirmed: not-needed` and carry on without asking.
+- `source: inferred` (the Goal had to be pieced together from the title, commits or diff): show the user the Goal section (a few lines) and ask whether it is right. Record their correction and set `confirmed: yes`. When nobody can answer (a CI or scheduled run), set `confirmed: no` and carry on; the report carries that flag at the top.
 
 ## Step 2: Find
 

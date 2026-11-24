@@ -10,8 +10,10 @@ Write `$STATE/report.md` in the language the user converses in (their agent inst
    ### <title naming the root cause>
    `cause file:line` · lens: <lenses>
    - <where it surfaces>: <input → wrong result>
-   Evidence: <the decisive evidence, short; method in one line>
-   Fix: <smallest change>
+
+   **Evidence**: <the decisive evidence, short; method in one line>
+
+   **Fix**: <smallest change>
    ```
 
    When `prior-match.md` marks the item `extends` or `reraised`, add a line linking the comment: "Extends <link>" or "Raised before and marked resolved, still present at head: <link>".

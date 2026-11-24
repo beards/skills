@@ -121,3 +121,21 @@ Status: needs-triage
 - nit 驗證上限 10 條：第 2 步合併與比對 prior comment 後，主流程依對 Goal 與後續維護的重要性排序 nit，第十條以後的 entry 標 `verify: skipped (nit cap)`，第 3 步不驗。
 - 未驗證的 nit 仍寫進最終報告，另列收合的「Unverified nits」小節並註明未驗證、可能有誤，附 entry id 供使用者自行深挖；Stats 記「nits not verified」。
 - 報告範本修正：Evidence 與 Fix 原本相鄰無空行，Markdown 併成一段導致修法被看漏；改為各自成段並加粗。
+
+### 第 8 輪（2026-11-24）：一次審多個相關 PR
+
+- **指定方式**：參數可給多個 PR URL 或 `owner/repo#n`，可混用。本地 clone 先在目前目錄與同層目錄找 remote 相符者；找不到就自動 `gh repo clone` 到 `$STATE` 下，不問。
+- **狀態目錄**（單 PR 也適用）：以下指令的目前目錄為準。在 repo 內 → 沿用原規則（文件指定且已 gitignore 的工作目錄，否則 git common dir）；不在 repo 內 → `<目前目錄>/.ds-code-review/<target-id>/`。多 PR 的 target id 為 `group-<第一個 target id>`。
+- **Goal**：一份 `goal.md`，上半共同目標，下半每個 PR 一小段寫其角色；確認規則照舊（任一部分是推斷才問）。
+- **finder**：每個 lens 一個 finder 看全部 PR，不依 PR 拆。
+- **歸屬與報告**：問題歸 `cause` 所在 PR，surface 可在別的 PR；一份 `report.md`，共同 header 後每 PR 一節、各自 verdict；prior comment 各 PR 分開比對；貼回 PR 只貼該 PR 的節。
+- **已 merge／關閉的 PR**：自動當背景，diff 與 Goal 進 fact pack，不歸屬問題、不出報告節。
+- **中途 head 變動**（單 PR 也適用）：每步開始前檢查各 PR head；有變動則保留已完成 finder，fact pack 附加「Update」節記新 commit，後續步驟（sweep、verify）一律在最新 head 跑；`state.md` 記各步驟跑在哪個 head。
+- **實作**：多 PR 細節放 `references/multi-pr.md`（只有 Review set 才讀）；狀態目錄、相依 PR 偵測、中途 head 變動寫在 `SKILL.md`；`GLOSSARY.md` 新增 Review set、Background PR。
+- **相依 PR 偵測**：只給一個 PR 時，Step 0 讀完 PR 敘述後、查 ticket 前，從 PR 敘述與 commit message 找明確標示相依（雙向：depends on、requires、part of、consumers 等）的 PR 連結。仍開著的 → 問使用者是否一起審；已 merge／關閉的 → 不問，直接當背景。無人可回答時只審指定 PR，報告 header 列出「偵測到但未一起審的相依 PR」。不從 ticket 挖。
+
+### 待處理觀察（2026-11-24，stellar-enforce PR #1072 試跑）
+
+- 12 個 subagent、約 1.38M tokens，PR 只有 +85/−30。大宗是 finder 深入讀跨 repo（lib、deploy）程式碼，且不少 finding 其實是 lib 的問題，在 consumer PR 又找一次。→ 第 8 輪：一次審多個相關 PR。
+- review 中途 head 被推新 commit：skill 只在重新叫起時處理 head 變動。這次手動做法：已完成的四個 finder 保留，fact pack 補上新 commit，sweep 與所有 verifier 改在新 head 跑。結果：新 commit 已修的 F01 被正確推翻，sweep 抓到新 commit 帶進的 2 個問題。
+- verifier 調整嚴重度：2 個 must-fix 降為 should-fix，1 個 nit（CI 沒跑）升為 should-fix。佐證 nit 上限用的是驗證前的嚴重度，被跳過的 nit 可能其實是 should-fix。

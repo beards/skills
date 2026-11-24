@@ -2,7 +2,7 @@
 
 Write `$STATE/report.md` in the language the user converses in (their agent instructions decide it; code and identifiers stay as they are), in this order. Every item is one root cause, the unit the verifiers judged; its scenarios are listed under it, never as separate items.
 
-1. **Header**: target and URL, head SHA, and the Goal in one or two sentences. When `goal.md` says `confirmed: no`, say so on the first line.
+1. **Header**: target and URL, head SHA, and the Goal in one or two sentences. When `goal.md` says `confirmed: no`, say so on the first line. When steps ran at different heads (see `state.md`), say which. List open related PRs that were detected but not reviewed with it.
 2. **Verdict**: one line. `Ready to merge`, `Ready after should-fix items`, or `Not ready: <n> must-fix`.
 3. **must-fix**, then **should-fix**: CONFIRMED, not pre-existing, one block each:
 

@@ -39,6 +39,13 @@ Harness-specific behaviour (for example subagents) that a skill uses when availa
 What a change under review set out to achieve (a feature to add or a bug to fix), taken from wherever it is plainly stated (PR description, ticket, spec), or confirmed by the user when it had to be inferred.
 _Avoid_: Intent, purpose
 
+**Review set**:
+Several PRs reviewed together as one change, usually split across repos, sharing one Goal and one fact pack.
+_Avoid_: PR group, batch
+
+**Background PR**:
+A merged or closed PR included in a Review set for context only; no problem is reported against it.
+
 **Fact pack**:
 The judgement-free record of a change under review (its Goal, diff, changed files and relevant call sites) that every Lens starts from.
 _Avoid_: Context summary, brief

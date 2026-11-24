@@ -87,7 +87,7 @@ Then cap the nits. When more than ten `nit` entries remain, rank them by how muc
 
 ## Step 3: Verify
 
-Group the entries in `$STATE/entries/` not marked `verify: skipped` by the file of their `cause`, and split a group when it grows past about five entries, or about ten when every entry in it is a nit. Dispatch one fresh verifier subagent per group with `references/verify.md`, `$STATE` and the group's entry ids, at the tier of the group's most severe entry: must-fix *strongest*, should-fix or suspicion *standard*, nit *light*. Run as many in parallel as the harness allows. A verifier writes one `$STATE/verdicts/<id>.md` per entry. It reads only its own entry files, `goal.md`, the fact pack and the code, so it forms its own view of each problem.
+Group the entries in `$STATE/entries/` not marked `verify: skipped`: all `nit` entries form one group, whatever their files; the rest are grouped by the file of their `cause`, splitting a group when it grows past about five entries. Dispatch one fresh verifier subagent per group with `references/verify.md`, `$STATE` and the group's entry ids, at the group's tier: the nit group *light*; any other group by its most severe entry, must-fix *strongest*, should-fix or suspicion *standard*. Run as many in parallel as the harness allows. A verifier writes one `$STATE/verdicts/<id>.md` per entry. It reads only its own entry files, `goal.md`, the fact pack and the code, so it forms its own view of each problem.
 
 ## Step 4: Report
 

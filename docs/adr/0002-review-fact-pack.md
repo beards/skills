@@ -1,0 +1,3 @@
+# Reviewers start from a fact pack, not from the orchestrator's understanding
+
+`ds-code-review` splits a review across several lens subagents. Each could re-read the whole change from scratch (independent, but the cost of understanding the code multiplies by the number of lenses), or inherit the orchestrator's summary or context (cheap, but every lens then shares the orchestrator's misreadings, which defeats independent review). We chose a middle path: the first step writes a fact pack (goal, diff, changed files, relevant call sites; facts only, no judgements) to disk, every lens starts from it and digs further on its own. Agents without subagents run the same lenses sequentially from the same fact pack.

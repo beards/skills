@@ -113,3 +113,10 @@ Status: needs-triage
 - `usage.md`：tier 欄記指令名稱，無 token 回報記 `-`。
 - 附帶好處：finder 與 verifier 用不同家模型，盲點較不重疊。
 - 未驗證：Codex `workspace-write` 沙箱能否寫入 `.git/` 下的 `$STATE`；沙箱等級由使用者在自己的指令中決定。
+
+### 第 7 輪（2026-11-24）：nit 上限與分組（依 PR #470 試跑）
+
+- 試跑數據：26 entry、6 個 verifier、共約 1.29M tokens；每個 subagent 固定開銷約 70–80k，與驗幾條關係不大（haiku 驗 2 條 88k，sonnet 驗 5 條 85–99k）。confirmed 16 條中 13 條是 nit。
+- verifier 分組：全是 nit 的群組上限放寬到約 10 條，其他維持約 5 條。
+- 報告 nit 上限 10 條：由寫報告者依對 Goal 與後續維護的重要性排序，只留前十；其餘留在 `verdicts/`，Stats 記「nits left out」。
+- 報告範本修正：Evidence 與 Fix 原本相鄰無空行，Markdown 併成一段導致修法被看漏；改為各自成段並加粗。

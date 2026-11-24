@@ -118,5 +118,6 @@ Status: needs-triage
 
 - 試跑數據：26 entry、6 個 verifier、共約 1.29M tokens；每個 subagent 固定開銷約 70–80k，與驗幾條關係不大（haiku 驗 2 條 88k，sonnet 驗 5 條 85–99k）。confirmed 16 條中 13 條是 nit。
 - verifier 分組：全是 nit 的群組上限放寬到約 10 條，其他維持約 5 條。
-- 報告 nit 上限 10 條：由寫報告者依對 Goal 與後續維護的重要性排序，只留前十；其餘留在 `verdicts/`，Stats 記「nits left out」。
+- nit 驗證上限 10 條：第 2 步合併與比對 prior comment 後，主流程依對 Goal 與後續維護的重要性排序 nit，第十條以後的 entry 標 `verify: skipped (nit cap)`，第 3 步不驗。
+- 未驗證的 nit 仍寫進最終報告，另列收合的「Unverified nits」小節並註明未驗證、可能有誤，附 entry id 供使用者自行深挖；Stats 記「nits not verified」。
 - 報告範本修正：Evidence 與 Fix 原本相鄰無空行，Markdown 併成一段導致修法被看漏；改為各自成段並加粗。

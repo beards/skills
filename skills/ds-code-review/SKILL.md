@@ -83,13 +83,15 @@ Then match against **prior comments**. Only now, after every finder has finished
    - `extends`: the entry adds a materially different scenario or a clearly higher severity than the comment. Keep it.
    - `reraised`: the comment's thread is resolved or marked fixed, yet the entry still finds the problem at head. Keep it.
 
+Then cap the nits. When more than ten `nit` entries remain, rank them by how much each matters to the Goal and to the code's future readers, and add the line `- verify: skipped (nit cap)` to every entry past the tenth.
+
 ## Step 3: Verify
 
-Group the entries in `$STATE/entries/` by the file of their `cause`, and split a group when it grows past about five entries, or about ten when every entry in it is a nit. Dispatch one fresh verifier subagent per group with `references/verify.md`, `$STATE` and the group's entry ids, at the tier of the group's most severe entry: must-fix *strongest*, should-fix or suspicion *standard*, nit *light*. Run as many in parallel as the harness allows. A verifier writes one `$STATE/verdicts/<id>.md` per entry. It reads only its own entry files, `goal.md`, the fact pack and the code, so it forms its own view of each problem.
+Group the entries in `$STATE/entries/` not marked `verify: skipped` by the file of their `cause`, and split a group when it grows past about five entries, or about ten when every entry in it is a nit. Dispatch one fresh verifier subagent per group with `references/verify.md`, `$STATE` and the group's entry ids, at the tier of the group's most severe entry: must-fix *strongest*, should-fix or suspicion *standard*, nit *light*. Run as many in parallel as the harness allows. A verifier writes one `$STATE/verdicts/<id>.md` per entry. It reads only its own entry files, `goal.md`, the fact pack and the code, so it forms its own view of each problem.
 
 ## Step 4: Report
 
-Write `$STATE/report.md` following `references/report.md`, from `goal.md`, the verdicts and `prior-match.md`. Reply to the user in their language with: the one-line merge verdict, counts per severity, the must-fix titles, and the path to `report.md`.
+Write `$STATE/report.md` following `references/report.md`, from `goal.md`, the verdicts, the skipped entries and `prior-match.md`. Reply to the user in their language with: the one-line merge verdict, counts per severity, the must-fix titles, and the path to `report.md`.
 
 Post to the PR only when the user asks. Show them the exact text first and post after they approve it. A post leaves out the `prior` matches, which others have already raised.
 

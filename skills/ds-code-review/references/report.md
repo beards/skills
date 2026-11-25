@@ -11,7 +11,7 @@ Write `$STATE/report.md` in the language the user converses in (their agent inst
    `cause file:line` · lens: <lenses>
    - <where it surfaces>: <input → wrong result>
 
-   **Evidence**: <the decisive evidence, short; method in one line>
+   **Evidence** (<evidence level>): <the decisive evidence, short; method in one line>
 
    **Fix**: <smallest change>
    ```
@@ -24,6 +24,6 @@ Write `$STATE/report.md` in the language the user converses in (their agent inst
    **Unverified nits**: the entries marked `verify: skipped`, inside `<details><summary>unverified nits (<n>)</summary>…</details>`, one line each with its location and entry id, under a first line saying they were not verified and may be wrong.
 6. **Already raised**: the `prior` matches, one line each with the comment's link. They were not verified.
 7. **Pre-existing problems**: one line each.
-8. **Stats**: Findings raised, already raised by others, refuted, confirmed, unverifiable, nits not verified; path to `$STATE`.
+8. **Stats**: Findings raised, already raised by others, refuted, confirmed (with the count per evidence level), unverifiable, nits not verified; path to `$STATE`.
 
 Refuted Findings stay out of the report; their verdict files remain in `$STATE/verdicts/`.

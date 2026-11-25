@@ -21,6 +21,15 @@ To reach a real environment (a running service, a database, a device), use an in
 
 A `suspicion` entry is CONFIRMED only once you have turned it into a concrete scenario.
 
+Record the **evidence level** your decisive evidence reached, the highest that applies:
+
+- `reproduced`: shown in the running program or a real environment.
+- `ran`: a test or script you ran against the real code fails, or passes, exactly as the verdict says.
+- `traced`: you walked the code path line by line and quoted each step.
+- `pointed`: you quoted the decisive line, rule, utility or commit.
+
+A verdict with none of these is UNVERIFIABLE. When a higher level was within reach and you stopped short, say why under Method.
+
 Then classify a CONFIRMED problem: **pre-existing** if the change neither introduced it, exposed it further, nor made it easier to trigger; otherwise it belongs to this change. Falling short of the Goal always belongs to this change. Re-assess severity (must-fix, should-fix, nit) from what you found.
 
 ## Write
@@ -31,6 +40,7 @@ Then classify a CONFIRMED problem: **pre-existing** if the change neither introd
 verdict: CONFIRMED | REFUTED | UNVERIFIABLE
 severity: must-fix | should-fix | nit      (CONFIRMED only)
 pre-existing: yes | no                     (CONFIRMED only)
+evidence: reproduced | ran | traced | pointed   (CONFIRMED or REFUTED)
 ## Finding
 <title, location, scenario as you now understand it>
 ## Method

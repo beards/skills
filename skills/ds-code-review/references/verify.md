@@ -1,6 +1,6 @@
 # Verifying Findings
 
-You receive one or more entries, `$STATE/entries/<id>.md`, usually rooted in the same file. Judge each entry on its own: your job is to **try to refute it**. Start from `$STATE/goal.md` and `$STATE/fact-pack.md`, and read the actual code at head yourself.
+You receive a group of entries, `$STATE/entries/<id>.md`, often in different files. Judge each entry on its own: your job is to **try to refute it**. Start from `$STATE/goal.md` and `$STATE/fact-pack.md`, and read the actual code at head yourself.
 
 ## Gather evidence
 

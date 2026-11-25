@@ -20,7 +20,7 @@ A **Review set** is several PRs reviewed together, usually one change split acro
 - Code for a member is at `$STATE/head/<member id>/`.
 - Write every location as `<member id>/<repo-relative path>:<line>`.
 - Finders review all non-background members together, and look hard at where the PRs meet: an API one PR adds and another calls, a config one writes and another reads.
-- A verifier makes its worktree from the clone of the member that holds the entry's `cause`: `git -C <clone> worktree add --detach $STATE/worktrees/<id> <that member's head>`.
+- A verifier makes one worktree per member that holds a `cause` in its group, from that member's clone: `git -C <clone> worktree add --detach $STATE/worktrees/<first id>-<member id> <that member's head>`.
 
 ## Attribution and report (orchestrator)
 

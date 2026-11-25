@@ -1,6 +1,6 @@
-# Finding problems through one Lens
+# Finding problems through Lenses
 
-You review one change from one Lens. Start from `$STATE/goal.md` and `$STATE/fact-pack.md`; read the code at `$STATE/head/` and anywhere else in the repo as deeply as your Lens needs.
+You review one change through the Lenses your brief names, one after another, giving each its full checklist below. Start from `$STATE/goal.md` and `$STATE/fact-pack.md`; read the code at `$STATE/head/` and anywhere else in the repo as deeply as each Lens needs.
 
 ## What you report
 
@@ -8,7 +8,7 @@ Report every problem you can tie to a concrete failure, however minor. Filtering
 
 ```markdown
 ### <short title>
-- lens: <your lens>
+- lens: <the Lens that found it>
 - cause: <repo-relative file:line at head where the faulty code is>
 - surfaces: <file:line where the wrong result shows, when it differs>
 - scenario: <the input, state or sequence> → <the wrong result>
@@ -16,11 +16,11 @@ Report every problem you can tie to a concrete failure, however minor. Filtering
 - severity: must-fix | should-fix | nit
 ```
 
-Report problems outside your Lens too when you see them; the merge step folds duplicates. A concern you cannot turn into a concrete scenario goes under a final `## Suspicions` heading as one line each, with its location. Verification will dig into it.
+Report problems outside your Lenses too when you see them; the merge step folds duplicates. A concern you cannot turn into a concrete scenario goes under a final `## Suspicions` heading as one line each, with its location. Verification will dig into it.
 
 Severity: **must-fix** produces wrong behaviour, misses the Goal or breaks existing behaviour; **should-fix** is a design, convention or maintainability problem with a concrete reason; **nit** is minor.
 
-Write everything to `$STATE/findings/<lens>.md` and return one line: the path and the number of Findings and Suspicions.
+Write everything to the findings file your brief names (`$STATE/findings/<finder>.md`) and return one line: the path and the number of Findings and Suspicions.
 
 ## Lenses
 

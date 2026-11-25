@@ -1,24 +1,24 @@
 ---
 name: ds-code-review
-description: Use when reviewing a pull request or a branch before merge - checking whether it achieves its goal, fixes the root cause, breaks existing behaviour, fails on edge inputs or timing, is over-designed, reinvents existing code, breaks conventions, or collides with newer commits on the target branch - and every reported problem must be verified rather than guessed. Triggers include "review PR 123", "review this branch", "code review".
+description: Use when reviewing a pull request or a branch before merge - checking whether it achieves its goal, fixes the root cause, breaks existing behaviour, fails on edge inputs or timing, is over-designed, reinvents existing code, breaks conventions, or collides with newer commits on the target branch - and every serious problem must be verified rather than guessed. Triggers include "review PR 123", "review this branch", "code review".
 license: MIT
 compatibility: Requires git. GitHub pull requests also need the gh CLI.
 ---
 
 # ds-code-review
 
-Review a change against its **Goal**, from several **Lenses**, then **verify** every Finding before reporting it. A problem reaches the report only with evidence.
+Review a change against its **Goal**, from several **Lenses**, then **verify** every Finding above nit before reporting it. A must-fix or should-fix problem reaches the report only with evidence; nits are listed as not verified.
 
 Paths like `references/lenses.md` are relative to this skill's directory. When you hand a reference file to a subagent, give it the absolute path.
 
 ## Ground rules
 
 - **Everything lands on disk.** Every step writes its output to the state directory before the next step starts. Subagents write their full output to the named file and return only a one-line status (file path and counts). The state files, not your context, are the source of truth.
-- **Subagents are an Enhancement.** When you can dispatch subagents, run each step below in fresh subagents as described. When you cannot, do the step yourself, following the same reference file and writing the same files; finish and write each lens's file before starting the next.
+- **Subagents are an Enhancement.** When you can dispatch subagents, run each step below in fresh subagents as described. When you cannot, do the step yourself, following the same reference file and writing the same files; finish and write each finder's file before starting the next.
 - **The reviewed branch is read-only.** All code reading, test runs and experiments happen in worktrees inside the state directory.
-- **Model tiers are an Enhancement.** When the harness lets you pick a subagent's model, use the tier the step names: *strongest*, *standard* or *light*. Effort is never lowered: run every subagent at high effort or above, because lower effort skips required work such as fetching tickets and searching call sites. A harness without a model choice uses its default for every step.
+- **Model tiers are an Enhancement.** When the harness lets you pick a subagent's model, use the tier the step names: *strongest* or *standard*. Effort is never lowered: run every subagent at high effort or above, because lower effort skips required work such as fetching tickets and searching call sites. A harness without a model choice uses its default for every step.
 - **Steps can run elsewhere.** When the user's or project's agent instructions name a command for running a step (`goal-and-facts`, `find`, `verify`, `report`), dispatch that step's subagents through it, giving each the same reference file (absolute path), `$STATE` and inputs, and asking for the same output files and one-line status. Check the output files exist before ticking the step.
-- **Record usage.** When the harness reports a subagent's token use, append `<step> | <lens or entry ids> | <tier> | <tokens>` to `$STATE/usage.md`. For a step run through an instructed command, write the command's name as the tier and `-` when it reports no tokens.
+- **Record usage.** When the harness reports a subagent's token use, append `<step> | <lens or entry ids> | <tier> | <tokens>` to `$STATE/usage.md`. For a step run through an instructed command, write the command's name as the tier and `-` when it reports no tokens. A run that was cut off (a usage limit, a crash) gets its own line marked `interrupted`, with its tokens or `-`; the run that resumes or replaces it gets another.
 
 ## Step 0: Target, state, resume
 
@@ -59,12 +59,10 @@ As soon as `goal.md` exists, set its `confirmed:` line by its `source:`:
 
 ## Step 2: Find
 
-Dispatch one finder subagent per Lens in parallel, each with `references/lenses.md`, its Lens name and `$STATE`:
+Two finders run, one after the other, each a *strongest* subagent with `references/lenses.md` and `$STATE`:
 
-- `goal`, `regression`, `edge` (*strongest*) and `design` (*standard*) always;
-- `drift` (*standard*) only when `fact-pack.md` lists base commits that touch the same files or features.
-
-Each writes `$STATE/findings/<lens>.md`. When all are done, dispatch the `sweep` finder (*strongest*; same file, Lens `sweep`), which reads the others and writes `$STATE/findings/sweep.md`.
+1. The `main` finder works through the Lenses `goal`, `regression`, `edge` and `design`, plus `drift` when `fact-pack.md` lists base commits that touch the same files or features, and writes `$STATE/findings/main.md`. When the diff has more than about 1,500 changed lines, run two in parallel instead: `main-a` (`goal`, `regression`, `drift`) and `main-b` (`edge`, `design`), each writing its own file.
+2. The `sweep` finder reads those files and writes `$STATE/findings/sweep.md`.
 
 Then merge by **root cause**: Findings that one fix would resolve become one entry, wherever they surface. Write each entry to its own file `$STATE/entries/<id>.md` (ids `F01`, `F02`, …):
 
@@ -88,15 +86,15 @@ Then match against **prior comments**. Only now, after every finder has finished
    - `extends`: the entry adds a materially different scenario or a clearly higher severity than the comment. Keep it.
    - `reraised`: the comment's thread is resolved or marked fixed, yet the entry still finds the problem at head. Keep it.
 
-Then cap the nits. When more than ten `nit` entries remain, rank them by how much each matters to the Goal and to the code's future readers, and add the line `- verify: skipped (nit cap)` to every entry past the tenth.
+Then set the nits aside. Nits are not verified: add the line `- verify: skipped (nit)` to every `nit` entry, and rank them by how much each matters to the Goal and to the code's future readers, writing the order to `$STATE/nits.md`, one id per line.
 
 ## Step 3: Verify
 
-Group the entries in `$STATE/entries/` not marked `verify: skipped`: all `nit` entries form one group, whatever their files; the rest are grouped by the file of their `cause`, splitting a group when it grows past about five entries. Dispatch one fresh verifier subagent per group with `references/verify.md`, `$STATE` and the group's entry ids, at the group's tier: the nit group *light*; any other group by its most severe entry, must-fix *strongest*, should-fix or suspicion *standard*. Run as many in parallel as the harness allows. A verifier writes one `$STATE/verdicts/<id>.md` per entry. It reads only its own entry files, `goal.md`, the fact pack and the code, so it forms its own view of each problem.
+Verify the entries in `$STATE/entries/` not marked `verify: skipped`, in two groups: the must-fix entries at *strongest*, and the should-fix and suspicion entries at *standard*. Split a group only past about ten entries, keeping entries with the same `cause` file together; every extra verifier rereads the Goal and the fact pack. Dispatch one fresh verifier subagent per group with `references/verify.md`, `$STATE` and the group's entry ids, in parallel. A verifier writes one `$STATE/verdicts/<id>.md` per entry. It reads only its own entry files, `goal.md`, the fact pack and the code, so it forms its own view of each problem.
 
 ## Step 4: Report
 
-Write `$STATE/report.md` following `references/report.md`, from `goal.md`, the verdicts, the skipped entries and `prior-match.md`. Reply to the user in their language with: the one-line merge verdict, counts per severity, the must-fix titles, and the path to `report.md`.
+Write `$STATE/report.md` following `references/report.md`, from `goal.md`, the verdicts, the skipped entries, `nits.md` and `prior-match.md`. Reply to the user in their language with: the one-line merge verdict, counts per severity, the must-fix titles, and the path to `report.md`.
 
 Post to the PR only when the user asks. Show them the exact text first and post after they approve it. A post leaves out the `prior` matches, which others have already raised. Record each posted comment in `$STATE/posted.md` as `<id> | <comment URL>`.
 

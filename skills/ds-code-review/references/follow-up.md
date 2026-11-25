@@ -5,6 +5,7 @@ A **Follow-up review** reviews a change again after a finished review, covering 
 ## Setting up (orchestrator)
 
 1. **Rounds.** Move every file in `$STATE` except `rounds/` into `$STATE/rounds/<n>/`, where `<n>` is one more than the highest round already there (the first move makes `rounds/1/`). Call that directory `$PREV`.
+   When `$PREV/posted.md` is missing (a round from an older version), rebuild it: list the PR's comments written by the reviewing account (`gh api user`), and any posting note in `$PREV/state.md`; match each to an entry by location and title; write the lines to `$PREV/posted.md`.
 2. **Goal.** Copy `$PREV/goal.md` to `$STATE/goal.md`. Fetch the PR description again, and every ticket `goal.md` cites. When what the change must achieve now differs, escalate (step 5).
 3. **Delta.** Take the old merge-base and head from `$PREV/state.md`.
    - Merge-base unchanged: the delta is `git diff <old head> <new head>`.
@@ -18,7 +19,7 @@ A **Follow-up review** reviews a change again after a finished review, covering 
    - [ ] 4 report
    ```
 
-5. **Escalate** to a full review when any of these holds: the delta's changed lines exceed half of the original diff's (`git diff --shortstat`); `range-diff` cannot pair most old commits with new ones; the Goal changed. Tell the user which one, then start a full review as `--full` does. In a Review set, compute the delta per member; one member escalating makes the whole set a full review.
+5. **Escalate** to a full review when the Goal changed, or when `range-diff` cannot pair most old commits with new ones. Tell the user which, then start a full review as `--full` does. The delta's size alone never escalates: the `main` finder covers every Lens on the delta, however large. In a Review set, compute the delta per member; a member with no new commits has no delta, and one member escalating makes the whole set a full review.
 
 ## Step 1: delta
 
@@ -26,11 +27,11 @@ Dispatch one *standard* subagent with `references/fact-pack.md`, this file and `
 
 ## Step 2: find
 
-- Finders: `regression` and `edge` (*strongest*), on the delta. Each looks hardest at whether a fix for a previous problem breaks something else. Add `drift` (*standard*) when the base gained commits that touch the same files or features. Then `sweep` as usual.
+- Finders: `main` and then `sweep`, as in a full review, on the delta. `main` looks hardest at whether a fix for a previous problem breaks something else, and covers `drift` when the base gained commits that touch the same files or features.
 - A Finding belongs here only when its cause is in the delta or the delta exposes it.
 - New entry ids continue from the highest id in `$PREV/entries/` and `$PREV/verdicts/`.
 - Prior comments: match only comments not listed in `$PREV/prior-comments.md`, and leave out the comments recorded in `$PREV/posted.md`.
-- The nit cap counts new entries only.
+- New nits are set aside as usual; `nits.md` lists new nits only.
 
 ## Step 3: verify
 
@@ -38,11 +39,14 @@ Dispatch one *standard* subagent with `references/fact-pack.md`, this file and `
 
 | Last verdict | This round |
 |---|---|
-| CONFIRMED, not pre-existing | verify again |
-| UNVERIFIABLE | verify again only when the delta touches its `cause` file; otherwise carry it over |
-| REFUTED, pre-existing, `verify: skipped`, `prior` | carry over |
+| CONFIRMED must-fix or should-fix, not pre-existing | verify again |
+| UNVERIFIABLE | verify again only when the delta touches its `cause` file |
+| nit (verified or not) | not verified; record whether the delta touches its `cause` lines |
+| REFUTED, pre-existing, `prior` | carry over |
 
-Copy each item to verify again from `$PREV/entries/` into `$STATE/entries/`, keeping its id. Group these items by the file of their `cause`, about ten to a group, at *standard*; their nits form one group at *light*. New entries are grouped and tiered as usual. Give a verifier of previous items, for each one: the entry, `$PREV/verdicts/<id>.md`, and, when `$PREV/posted.md` lists a comment for it, that comment's thread with the author's replies.
+An item whose member has no delta is carried over, unless its thread gained a reply from the author since the last round; then verify it again.
+
+Copy each item to verify again from `$PREV/entries/` into `$STATE/entries/`, keeping its id, and group these items as a full review groups entries (must-fix *strongest*, the rest *standard*, about ten to a group). They need nothing from the finders, so dispatch their verifiers at the start of step 2, alongside the `main` finder. New entries are verified after the finders, as usual. Tick step 3 when both are done. Give a verifier of previous items, for each one: the entry, `$PREV/verdicts/<id>.md`, and, when `$PREV/posted.md` lists a comment for it, that comment's thread with the author's replies.
 
 A verifier of a previous item writes the usual verdict file, adding:
 
@@ -62,7 +66,7 @@ status: fixed | still present | partial | accepted | disputed
 `report.md` follows `references/report.md`, with these changes:
 
 - The header says "Follow-up review, round <n + 1>, against <old head>" and links `$PREV/report.md`.
-- Before the severity parts, **Previous items**: one line each with its status, title and comment link. `still present`, `partial` and `disputed` items then get the usual block, under their severity.
+- Before the severity parts, **Previous items**: one line each with its status, title and comment link; a previous nit shows `cause touched` or `cause untouched` in place of a status. `still present`, `partial` and `disputed` items then get the usual block, under their severity.
 - The other parts hold new entries only. Carried-over items stay in `$PREV/report.md`.
 - The verdict line counts `still present`, `partial`, `disputed` and new CONFIRMED items.
 - Stats add the count per status.

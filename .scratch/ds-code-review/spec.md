@@ -159,6 +159,20 @@ Status: needs-triage
 - **實作**：`references/follow-up.md`；`SKILL.md` 只改 Step 0（`--full`、resume 分支）與貼文記錄；`GLOSSARY.md` 新增 Follow-up review。
 - 未驗證：尚未實跑；`range-diff` 配對失敗的判斷（「大多數」）是否夠明確。
 
+### 第 11 輪（2026-11-25）：降成本 + follow-up 修正（依 group-stellar-lib-pr-470 兩輪數據，見 cost-analysis.md）
+
+- **nit 不驗**：所有 nit 標 `verify: skipped (nit)`，排序寫進 `nits.md`，報告列在「nit, not verified」。取消 nit 上限與 light tier（已無步驟用到）。
+- **lens 合併**：finder 只剩兩個、都 strongest：`main`（goal、regression、edge、design，條件成立加 drift）→ `sweep`。diff 超過約 1,500 行時 `main` 拆成 `main-a`（goal、regression、drift）與 `main-b`（edge、design）並行。lens 定義不變，finding 仍標 lens。
+- **verifier 分大組**：must-fix 一組 strongest、其餘一組 standard；超過約 10 條才拆，同 cause 檔放一起。Review set 的 verifier 每個涉及的 member 各開一個 worktree。
+- **follow-up 修正**：
+  - 升級不再看 delta 行數（`main` 已涵蓋所有 lens），只看 Goal 變動與 range-diff 配對失敗。
+  - 舊 round 沒有 `posted.md`：從 PR 上 reviewing account 的 comment 與 state.md 的貼文紀錄重建。
+  - 沒有新 commit 的 member：舊項目沿用，除非作者在 thread 有新回覆。
+  - 舊項目重驗不等 finder，step 2 開始時就與 `main` 並行派出。
+  - 舊 nit 不重驗，只記 delta 有沒有碰到 cause 行。
+- **usage**：被中斷的 run 自己一行標 `interrupted`，續跑或重跑另記一行。
+- 預估 round 1 成本從約 2.9M 降到約 1M；未實測。風險：單一 `main` finder 在大 Review set 上可能變淺；nit 被低估成 nit 的 should-fix 會漏驗。
+
 ### 待處理觀察（2026-11-24，stellar-enforce PR #1072 試跑）
 
 - 12 個 subagent、約 1.38M tokens，PR 只有 +85/−30。大宗是 finder 深入讀跨 repo（lib、deploy）程式碼，且不少 finding 其實是 lib 的問題，在 consumer PR 又找一次。→ 第 8 輪：一次審多個相關 PR。

@@ -134,6 +134,15 @@ Status: needs-triage
 - **實作**：多 PR 細節放 `references/multi-pr.md`（只有 Review set 才讀）；狀態目錄、相依 PR 偵測、中途 head 變動寫在 `SKILL.md`；`GLOSSARY.md` 新增 Review set、Background PR。
 - **相依 PR 偵測**：只給一個 PR 時，Step 0 讀完 PR 敘述後、查 ticket 前，從 PR 敘述與 commit message 找明確標示相依（雙向：depends on、requires、part of、consumers 等）的 PR 連結。仍開著的 → 問使用者是否一起審；已 merge／關閉的 → 不問，直接當背景。無人可回答時只審指定 PR，報告 header 列出「偵測到但未一起審的相依 PR」。不從 ticket 挖。
 
+### 第 9 輪（2026-11-25）：verdict 證據等級（借鏡 pstack blast-radius）
+
+- verdict 加 `evidence:` 欄，記決定性證據達到的最高等級：`reproduced`（在執行中的程式或真實環境重現）> `ran`（跑了針對真實 code 的測試或腳本）> `traced`（逐行追路徑並引用每一步）> `pointed`（引用決定性的那一行、規則、既有工具或 commit）。
+- CONFIRMED 與 REFUTED 都要填；連 `pointed` 都達不到的就是 UNVERIFIABLE（對應 blast-radius 的第 1 級「只是說」）。
+- 有更高等級可達卻沒做，要在 Method 說明原因（blast-radius 的「說明停在哪一級」）。
+- 用名稱不用數字：名稱本身就描述做了什麼，報告讀者不用查表。
+- 報告：Evidence 標籤後加等級 `**Evidence** (ran): …`；Stats 列 confirmed 各等級數量。
+- 未做：依等級擋報告（例如 must-fix 至少要 `ran`）。先觀察實跑的等級分布再決定。
+
 ### 待處理觀察（2026-11-24，stellar-enforce PR #1072 試跑）
 
 - 12 個 subagent、約 1.38M tokens，PR 只有 +85/−30。大宗是 finder 深入讀跨 repo（lib、deploy）程式碼，且不少 finding 其實是 lib 的問題，在 consumer PR 又找一次。→ 第 8 輪：一次審多個相關 PR。

@@ -22,15 +22,17 @@ Paths like `references/lenses.md` are relative to this skill's directory. When y
 
 ## Step 0: Target, state, resume
 
-1. **Target.** The argument is a PR number, PR URL, or branch, plus an optional `--base <ref>`. With no argument: if the current branch has a PR (`gh pr view --json number`), review that PR; otherwise review the current branch against the default branch. Other hosting platforms: use an installed skill or project instruction that covers fetching their PRs; otherwise ask the user for the base and head refs. Several PRs (URLs or `owner/repo#n`) form a **Review set**: follow [references/multi-pr.md](references/multi-pr.md) as well, and hand it to every subagent along with its own reference file.
+1. **Target.** The argument is a PR number, PR URL, or branch, plus an optional `--base <ref>` and an optional `--full` (review from scratch even after a finished review). With no argument: if the current branch has a PR (`gh pr view --json number`), review that PR; otherwise review the current branch against the default branch. Other hosting platforms: use an installed skill or project instruction that covers fetching their PRs; otherwise ask the user for the base and head refs. Several PRs (URLs or `owner/repo#n`) form a **Review set**: follow [references/multi-pr.md](references/multi-pr.md) as well, and hand it to every subagent along with its own reference file.
 2. **Target id.** `pr-<number>` or `branch-<name>` with `/` replaced by `-`.
 3. **State directory**, decided by the directory you were invoked in. Inside a git repo: if its `AGENTS.md` or `CLAUDE.md` names a location for working or scratch files *and* `git check-ignore` confirms that location is ignored, use `<that location>/ds-code-review/<target-id>/`; otherwise use `$(git rev-parse --path-format=absolute --git-common-dir)/ds-code-review/<target-id>/`. Outside any repo: `<current directory>/.ds-code-review/<target-id>/`. Call it `$STATE` below; always pass it to subagents as an absolute path.
 4. **Resolve refs.** When the repo has a remote, fetch the head (`git fetch origin pull/<n>/head` for a GitHub PR) and the base; a local branch with no remote uses the local refs. Record the head SHA and the merge-base.
 5. **Preflight.** Empty diff (`git diff <merge-base> <head>`): stop and tell the user. PR merged or closed: tell the user and ask whether to review anyway. Draft PRs are reviewed normally.
    **Related PRs.** For a single PR, look in its description and commit messages for links to other PRs marked as related in either direction ("depends on", "requires", "part of", "consumers"). Do this now, before any ticket is fetched. Add merged or closed ones as Background PRs without asking. For open ones, ask the user whether to review them together; each yes joins the Review set. When nobody can answer, review the one PR and list the open related PRs in the report header. Any second member makes this a Review set.
 6. **Resume.** If `$STATE/state.md` exists:
-   - same head SHA: continue from the first step not marked done;
-   - different head SHA: move the old contents to `$STATE/archive/<old-sha>/` and start over.
+   - `--full` given: move the old contents to `$STATE/archive/<old-sha>/` and start over;
+   - a step not yet ticked: continue from it, following **Heads can move** below when the head moved;
+   - every step ticked, head moved: this is a **Follow-up review**. Follow [references/follow-up.md](references/follow-up.md) in place of steps 0.7 to 4, and hand it to every subagent along with its own reference file;
+   - every step ticked, same head: tell the user the report is current and give its path.
 7. Create `$STATE/head/` as a detached worktree at the head SHA (`git worktree add --detach $STATE/head <sha>`) and write `$STATE/state.md`:
 
    ```markdown
@@ -96,6 +98,6 @@ Group the entries in `$STATE/entries/` not marked `verify: skipped`: all `nit` e
 
 Write `$STATE/report.md` following `references/report.md`, from `goal.md`, the verdicts, the skipped entries and `prior-match.md`. Reply to the user in their language with: the one-line merge verdict, counts per severity, the must-fix titles, and the path to `report.md`.
 
-Post to the PR only when the user asks. Show them the exact text first and post after they approve it. A post leaves out the `prior` matches, which others have already raised.
+Post to the PR only when the user asks. Show them the exact text first and post after they approve it. A post leaves out the `prior` matches, which others have already raised. Record each posted comment in `$STATE/posted.md` as `<id> | <comment URL>`.
 
 Finally remove the worktrees this skill created under `$STATE` (`git worktree remove --force`; they hold only build and test leftovers), keeping every other file in `$STATE`.

@@ -19,8 +19,6 @@ To reach a real environment (a running service, a database, a device), use an in
 - **REFUTED**: the code, a test or a guard shows it cannot happen, or it does not matter.
 - **UNVERIFIABLE**: the evidence needed is out of reach. Say exactly what would settle it.
 
-A `suspicion` entry is CONFIRMED only once you have turned it into a concrete scenario.
-
 Record the **evidence level** your decisive evidence reached, the highest that applies:
 
 - `reproduced`: shown in the running program or a real environment.

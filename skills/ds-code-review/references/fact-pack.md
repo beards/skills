@@ -1,6 +1,6 @@
 # Goal and fact pack
 
-You prepare the ground for a code review, doing the section named in your task. You record facts; you make no judgement about whether the change is good. Code is checked out at `$STATE/head/`.
+You prepare the ground for a code review, doing both sections below in order, or only the one your task names. You record facts; you make no judgement about whether the change is good. Code is checked out at `$STATE/head/`.
 
 ## 1. Find the Goal
 
@@ -33,8 +33,6 @@ kind: feature | bugfix | refactor | other
 
 `source: stated` when the PR description, a fetched ticket, a spec or a design doc says plainly what the change must achieve (for a bug: the symptom and the expected behaviour). Otherwise `source: inferred`: piece the Goal together from the title, commits and diff, and say so in the Goal section.
 
-Return one line: the path and the `source:` value.
-
 ## 2. Build the fact pack
 
 Write `$STATE/fact-pack.md` with these sections:
@@ -51,4 +49,4 @@ Facts only. Opinions about the change do not belong in either file.
 
 The fact pack is complete when every changed symbol has a call-site list or `none found`, and every section above is present.
 
-Return one line: the path.
+Return one line: the path of each file you wrote, and the `source:` value when you wrote `goal.md`.

@@ -63,7 +63,7 @@ A suspected problem tied to a concrete location and a concrete failure scenario.
 _Avoid_: Issue, comment
 
 **Suspicion**:
-A concern too vague to be a Finding, handed to verification rather than reported.
+A concern too vague to be a Finding, listed in the report as not verified.
 
 **Verdict**:
 The outcome of verifying a Finding: confirmed with evidence, refuted, or unverifiable.

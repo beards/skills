@@ -7,7 +7,7 @@ compatibility: Requires git. GitHub pull requests also need the gh CLI.
 
 # ds-code-review
 
-Review a change against its **Goal**, from several **Lenses**, then **verify** every Finding above nit before reporting it. A must-fix or should-fix problem reaches the report only with evidence; nits are listed as not verified.
+Review a change against its **Goal**, from several **Lenses**, then **verify** every Finding above nit before reporting it. A must-fix or should-fix problem reaches the report only with evidence; nits and Suspicions are listed as not verified.
 
 Paths like `references/lenses.md` are relative to this skill's directory. When you hand a reference file to a subagent, give it the absolute path.
 
@@ -50,9 +50,9 @@ Paths like `references/lenses.md` are relative to this skill's directory. When y
 
 ## Step 1: Goal and fact pack
 
-Dispatch two *standard*-tier subagents with `references/fact-pack.md`, `$STATE` and the target: one for its section 1, which writes `$STATE/goal.md`, and one for its section 2, which writes `$STATE/fact-pack.md`. Run them in parallel when you can.
+Dispatch one *standard*-tier subagent with `references/fact-pack.md`, `$STATE` and the target. It writes `$STATE/goal.md` and `$STATE/fact-pack.md`.
 
-As soon as `goal.md` exists, set its `confirmed:` line by its `source:`:
+When it returns, set the `confirmed:` line of `goal.md` by its `source:`:
 
 - `source: stated` (the PR description, a ticket, a spec or a design doc states what the change must achieve): set `confirmed: not-needed` and carry on without asking.
 - `source: inferred` (the Goal had to be pieced together from the title, commits or diff): show the user the Goal section (a few lines) and ask whether it is right. Record their correction and set `confirmed: yes`. When nobody can answer (a CI or scheduled run), set `confirmed: no` and carry on; the report carries that flag at the top.
@@ -86,11 +86,11 @@ Then match against **prior comments**. Only now, after every finder has finished
    - `extends`: the entry adds a materially different scenario or a clearly higher severity than the comment. Keep it.
    - `reraised`: the comment's thread is resolved or marked fixed, yet the entry still finds the problem at head. Keep it.
 
-Then set the nits aside. Nits are not verified: add the line `- verify: skipped (nit)` to every `nit` entry, and rank them by how much each matters to the Goal and to the code's future readers, writing the order to `$STATE/nits.md`, one id per line.
+Then set the nits and Suspicions aside. They are not verified: add the line `- verify: skipped (nit)` to every `nit` entry and `- verify: skipped (suspicion)` to every `suspicion` entry. Rank the nits by how much each matters to the Goal and to the code's future readers, writing the order to `$STATE/nits.md`, one id per line.
 
 ## Step 3: Verify
 
-Verify the entries in `$STATE/entries/` not marked `verify: skipped`, in two groups: the must-fix entries at *strongest*, and the should-fix and suspicion entries at *standard*. Split a group only past about ten entries, keeping entries with the same `cause` file together; every extra verifier rereads the Goal and the fact pack. Dispatch one fresh verifier subagent per group with `references/verify.md`, `$STATE` and the group's entry ids, in parallel. A verifier writes one `$STATE/verdicts/<id>.md` per entry. It reads only its own entry files, `goal.md`, the fact pack and the code, so it forms its own view of each problem.
+Verify the entries in `$STATE/entries/` not marked `verify: skipped`, in two groups: the must-fix entries at *strongest*, and the should-fix entries at *standard*. Split a group only past about fifteen entries, keeping entries with the same `cause` file together; every extra verifier rereads the Goal and the fact pack. Dispatch one fresh verifier subagent per group with `references/verify.md`, `$STATE` and the group's entry ids, in parallel. A verifier writes one `$STATE/verdicts/<id>.md` per entry. It reads only its own entry files, `goal.md`, the fact pack and the code, so it forms its own view of each problem.
 
 ## Step 4: Report
 

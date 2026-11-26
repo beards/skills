@@ -90,3 +90,24 @@ round 2 有 8 個 subagent 因週額度中斷，usage 只記續跑段，實際�
 4. **suspicion 驗證的 CP 值低**：約 260k 換到 0 條 must/should-fix；其中 8 個來自 edge，推翻 5 個。
 5. **lens 都有貢獻**：3 條 should-fix 分別來自 edge、design、sweep，這次沒有可以再砍的 finder。
 6. **額度權重**：find 的 557k 加上 F01 的 96k 都跑在 fable 上；如果額度依模型加權，實際花費比 token 數看起來更偏向這兩段。
+
+# 成本分析：stellar-release-pr-310（單 PR，第一輪）（2026-11-26）
+
+diff 231 行，其中 222 行是測試，非測試只有 `asp.yml` 9 行；問題大多出在 diff 外的 `main.go`（packer）。全程 opus（standard 也是 opus@high，finder 為 xhigh）。
+
+| 階段 | tokens | 占比 |
+|---|---|---|
+| goal 125k + fact pack 216k（648 行） | 340k | 29% |
+| find：main 223k、sweep 236k（另有一段因額度中斷，未記） | ≥459k | 39% |
+| verify：2 組（4 筆 188k、7 筆 183k） | 371k | 32% |
+| 合計 | ≥1.17M（6 次 dispatch） | |
+
+產出：14 entry → verify 11 → should-fix 4（F01、F03 來自 main 的 goal+edge；F02、F05 來自 sweep）、降為 nit 1（F06）、推翻 6（F04 goal、F10–F14 全是 suspicion）。nit 3 個不驗。
+
+觀察：
+1. **成本跟 diff 大小幾乎無關**：9 行非測試改動和上一個 1,000 行的 Review set 一樣花約 1.2M。底價來自讀 context（ticket、相關 PR、packer），不是 diff。
+2. **goal + fact pack 占 29%**：goal 單獨 125k（抓 STR-6932 與 #95/#638/#298/#299）。兩者合一可省一份底價。
+3. **verifier 又拆了**：11 筆只比門檻多 1 筆就拆成 2 組，而且 `asp.yml` 的 entry 被拆到兩組（F10 在第 1 組），第二次違反同檔同組。約多花 180k。
+4. **suspicion 5/5 被推翻**，兩次累計 suspicion 18 筆、0 條 must/should-fix。
+5. sweep 貢獻 4 條中的 2 條，不能砍。
+6. 又撞額度中斷一次，中斷段 token 未知。

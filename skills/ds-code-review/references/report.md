@@ -20,9 +20,10 @@ Write `$STATE/report.md` in the language the user converses in (their agent inst
 
    For a GitHub PR, link locations as permalinks with the full head SHA.
 4. **nit**: inside `<details><summary>nit, not verified (<n>)</summary>…</details>`, in the order of `nits.md`, one line each with its location and entry id, under a first line saying they were not verified and may be wrong.
+   **Suspicions** follow in the same form: `<details><summary>suspicion, not verified (<n>)</summary>…</details>`, one line each with its location, entry id and the concern.
 5. **Unverifiable**: one line each, with what would settle it.
 6. **Already raised**: the `prior` matches, one line each with the comment's link. They were not verified.
 7. **Pre-existing problems**: one line each.
-8. **Stats**: Findings raised, already raised by others, refuted, confirmed (with the count per evidence level), unverifiable, nits (not verified); path to `$STATE`.
+8. **Stats**: Findings raised, already raised by others, refuted, confirmed (with the count per evidence level), unverifiable, nits and Suspicions (not verified); path to `$STATE`.
 
 Refuted Findings stay out of the report; their verdict files remain in `$STATE/verdicts/`.

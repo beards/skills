@@ -31,7 +31,7 @@ Dispatch one *standard* subagent with `references/fact-pack.md`, this file and `
 - A Finding belongs here only when its cause is in the delta or the delta exposes it.
 - New entry ids continue from the highest id in `$PREV/entries/` and `$PREV/verdicts/`.
 - Prior comments: match only comments not listed in `$PREV/prior-comments.md`, and leave out the comments recorded in `$PREV/posted.md`.
-- New nits are set aside as usual; `nits.md` lists new nits only.
+- New nits and Suspicions are set aside as usual; `nits.md` lists new nits only.
 
 ## Step 3: verify
 
@@ -41,12 +41,12 @@ Dispatch one *standard* subagent with `references/fact-pack.md`, this file and `
 |---|---|
 | CONFIRMED must-fix or should-fix, not pre-existing | verify again |
 | UNVERIFIABLE | verify again only when the delta touches its `cause` file |
-| nit (verified or not) | not verified; record whether the delta touches its `cause` lines |
+| nit or suspicion (verified or not) | not verified; record whether the delta touches its `cause` lines |
 | REFUTED, pre-existing, `prior` | carry over |
 
 An item whose member has no delta is carried over, unless its thread gained a reply from the author since the last round; then verify it again.
 
-Copy each item to verify again from `$PREV/entries/` into `$STATE/entries/`, keeping its id, and group these items as a full review groups entries (must-fix *strongest*, the rest *standard*, about ten to a group). They need nothing from the finders, so dispatch their verifiers at the start of step 2, alongside the `main` finder. New entries are verified after the finders, as usual. Tick step 3 when both are done. Give a verifier of previous items, for each one: the entry, `$PREV/verdicts/<id>.md`, and, when `$PREV/posted.md` lists a comment for it, that comment's thread with the author's replies.
+Copy each item to verify again from `$PREV/entries/` into `$STATE/entries/`, keeping its id, and group these items as a full review groups entries (must-fix *strongest*, the rest *standard*, split only past about fifteen). They need nothing from the finders, so dispatch their verifiers at the start of step 2, alongside the `main` finder. New entries are verified after the finders, as usual. Tick step 3 when both are done. Give a verifier of previous items, for each one: the entry, `$PREV/verdicts/<id>.md`, and, when `$PREV/posted.md` lists a comment for it, that comment's thread with the author's replies.
 
 A verifier of a previous item writes the usual verdict file, adding:
 
@@ -66,7 +66,7 @@ status: fixed | still present | partial | accepted | disputed
 `report.md` follows `references/report.md`, with these changes:
 
 - The header says "Follow-up review, round <n + 1>, against <old head>" and links `$PREV/report.md`.
-- Before the severity parts, **Previous items**: one line each with its status, title and comment link; a previous nit shows `cause touched` or `cause untouched` in place of a status. `still present`, `partial` and `disputed` items then get the usual block, under their severity.
+- Before the severity parts, **Previous items**: one line each with its status, title and comment link; a previous nit or suspicion shows `cause touched` or `cause untouched` in place of a status. `still present`, `partial` and `disputed` items then get the usual block, under their severity.
 - The other parts hold new entries only. Carried-over items stay in `$PREV/report.md`.
 - The verdict line counts `still present`, `partial`, `disputed` and new CONFIRMED items.
 - Stats add the count per status.

@@ -162,7 +162,7 @@ Status: needs-triage
 ### 第 11 輪（2026-11-25）：降成本 + follow-up 修正（依 group-stellar-lib-pr-470 兩輪數據，見 cost-analysis.md）
 
 - **nit 不驗**：所有 nit 標 `verify: skipped (nit)`，排序寫進 `nits.md`，報告列在「nit, not verified」。取消 nit 上限與 light tier（已無步驟用到）。
-- **lens 合併**：finder 只剩兩個、都 strongest：`main`（goal、regression、edge、design，條件成立加 drift）→ `sweep`。diff 超過約 1,500 行時 `main` 拆成 `main-a`（goal、regression、drift）與 `main-b`（edge、design）並行。lens 定義不變，finding 仍標 lens。
+- **lens 合併**：finder 只剩兩個、都 strongest：`main`（goal、regression、edge、design，條件成立加 drift）→ `sweep`。diff 扣掉測試檔（tests、fixtures、snapshots）後超過約 1,500 行時 `main` 拆成 `main-a`（goal、regression、drift）與 `main-b`（edge、design）並行。lens 定義不變，finding 仍標 lens。
 - **verifier 分大組**：must-fix 一組 strongest、其餘一組 standard；超過約 10 條才拆，同 cause 檔放一起。Review set 的 verifier 每個涉及的 member 各開一個 worktree。
 - **follow-up 修正**：
   - 升級不再看 delta 行數（`main` 已涵蓋所有 lens），只看 Goal 變動與 range-diff 配對失敗。

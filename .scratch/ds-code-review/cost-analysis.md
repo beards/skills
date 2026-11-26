@@ -61,3 +61,32 @@ round 2 有 8 個 subagent 因週額度中斷，usage 只記續跑段，實際�
 - 沒有新 commit 的 member：沒說舊項目要不要重驗；這次沿用不重驗。
 - 舊項目重驗不必等 finder，可以並行（兩者互不讀對方輸出）。
 - 撞到額度中斷：續跑的 subagent 在 usage.md 只記續跑段。
+
+# 成本分析：group-stellar-docker-pr-55（2 個 PR，第一輪，cuts 1–3 之後）（2026-11-26）
+
+資料：`_unified/.scratch/ds-code-review/group-stellar-docker-pr-55/usage.md`、entries、verdicts。diff 1,587 行（其中測試 562 行）。
+
+## Token 分布（共 1.18M，9 個 subagent）
+
+| 階段 | tokens | 占比 |
+|---|---|---|
+| goal 69k + fact pack 143k | 213k | 18% |
+| find：main-a 170k、main-b 199k、sweep 188k（皆 fable） | 557k | 47% |
+| verify：F01 單獨 strongest 96k；standard 三組 103k/106k/106k | 411k | 35% |
+
+對照 pr-470 round 1：2.93M／18 個 subagent。subagent 數減半，token 降約 60%，跟先前估計相符。
+
+## 產出
+
+- 32 entry：19 finding（含 15 nit 不驗）＋13 suspicion。
+- 驗證 17 筆：should-fix 3（F02 edge、F03 design、F04 sweep，都來自 finding）；F01 must-fix 被降為 nit。
+- 13 個 suspicion：推翻 7、無法驗證 2、確認 4，確認的 4 個全是 nit（1 個 pre-existing）。suspicion 沒產出任何 must/should-fix。
+
+## 觀察
+
+1. **拆 main-a/main-b 的門檻踩線**：1,587 行剛好超過 1,500，其中 562 行是測試；不算測試只有約 1,000 行，跑一個 main 就夠，多花約 170k。
+2. **verifier 分組比規則多一組**：should-fix＋suspicion 共 16 筆，規則是「超過約 10 筆才拆」，拆成 2 組就夠，實際拆了 3 組，多花約 100k。
+3. **單筆 must-fix 獨占一個 strongest verifier**：96k 只驗 F01，結果是 nit。
+4. **suspicion 驗證的 CP 值低**：約 260k 換到 0 條 must/should-fix；其中 8 個來自 edge，推翻 5 個。
+5. **lens 都有貢獻**：3 條 should-fix 分別來自 edge、design、sweep，這次沒有可以再砍的 finder。
+6. **額度權重**：find 的 557k 加上 F01 的 96k 都跑在 fable 上；如果額度依模型加權，實際花費比 token 數看起來更偏向這兩段。

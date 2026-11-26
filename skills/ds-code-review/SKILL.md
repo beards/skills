@@ -61,7 +61,7 @@ As soon as `goal.md` exists, set its `confirmed:` line by its `source:`:
 
 Two finders run, one after the other, each a *strongest* subagent with `references/lenses.md` and `$STATE`:
 
-1. The `main` finder works through the Lenses `goal`, `regression`, `edge` and `design`, plus `drift` when `fact-pack.md` lists base commits that touch the same files or features, and writes `$STATE/findings/main.md`. When the diff has more than about 1,500 changed lines, run two in parallel instead: `main-a` (`goal`, `regression`, `drift`) and `main-b` (`edge`, `design`), each writing its own file.
+1. The `main` finder works through the Lenses `goal`, `regression`, `edge` and `design`, plus `drift` when `fact-pack.md` lists base commits that touch the same files or features, and writes `$STATE/findings/main.md`. When the diff has more than about 1,500 changed lines outside test files (tests, fixtures, snapshots), run two in parallel instead: `main-a` (`goal`, `regression`, `drift`) and `main-b` (`edge`, `design`), each writing its own file.
 2. The `sweep` finder reads those files and writes `$STATE/findings/sweep.md`.
 
 Then merge by **root cause**: Findings that one fix would resolve become one entry, wherever they surface. Write each entry to its own file `$STATE/entries/<id>.md` (ids `F01`, `F02`, …):

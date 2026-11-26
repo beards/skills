@@ -28,7 +28,7 @@ Stick to `npx skills` for every skill you take from this repo. Another channel (
 
 | Skill | What it does |
 | ----- | ------------ |
-| `ds-code-review` | Reviews a PR or branch against its goal from several lenses (goal, regression, edge cases, design, base drift), then verifies every finding with evidence before reporting it. |
+| `ds-code-review` | Reviews a PR or branch against its goal from several lenses (goal, regression, edge cases, design, base drift), then verifies every finding above nit with evidence before reporting it. |
 
 ## Contributing
 

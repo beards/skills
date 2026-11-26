@@ -46,6 +46,10 @@ _Avoid_: PR group, batch
 **Background PR**:
 A merged or closed PR included in a Review set for context only; no problem is reported against it.
 
+**Follow-up review**:
+A review of a change after an earlier finished review, covering only what changed since and whether the problems it reported still hold.
+_Avoid_: Re-review, second pass, incremental review
+
 **Fact pack**:
 The judgement-free record of a change under review (its Goal, diff, changed files and relevant call sites) that every Lens starts from.
 _Avoid_: Context summary, brief

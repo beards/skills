@@ -143,6 +143,36 @@ Status: needs-triage
 - 報告：Evidence 標籤後加等級 `**Evidence** (ran): …`；Stats 列 confirmed 各等級數量。
 - 未做：依等級擋報告（例如 must-fix 至少要 `ran`）。先觀察實跑的等級分布再決定。
 
+### 第 10 輪（2026-11-25）：Follow-up review（修正後再審）
+
+- 參考：Matt `code-review` 只有「review since <fixed point>」、不記上次 finding；pstack autopilot-full 依改動大小分級重驗、shipping 用 `git patch-id` 讓結論綁 patch。
+- **觸發**：`$STATE` 有完成的 report 且 head 變了 → 自動 follow-up；`--full` 才歸檔重來。上次沒跑完 → 照「中途 head 變動」接續。順帶解掉 resume 與中途 head 變動規則的矛盾。
+- **檔案**：上一輪移到 `$STATE/rounds/<n>/`；新 entry id 接續；舊問題重驗的 verdict 加 `round`、`status`。
+- **delta**：merge-base 沒變用 `git diff <old head> <new head>`；有 rebase 用 `git range-diff`，只因 rebase 變的 commit 不算，base 的新 commit 交給 `drift`。
+- **升級完整重審**：delta 變動行數超過原 diff 一半、range-diff 對不起來、Goal 變了；Review set 任一 member 升級就整組升級。
+- **Goal 與 fact pack**：沿用上一輪 `goal.md`（重抓 PR 敘述與 ticket 比對）；fact pack 沿用並加 `## Follow-up <n>` 節，一個 standard subagent。
+- **find**：delta 上跑 `regression`、`edge`（重點：修正本身有沒有弄壞別處），條件成立加 `drift`，最後 `sweep`；prior comment 只比對新出現的；nit 上限只算新 entry。
+- **重驗**：上次 CONFIRMED（非 pre-existing）全部重驗；UNVERIFIABLE 只在 delta 碰到 cause 檔時重驗；其他沿用。依 cause 檔分組、每組約 10 條、standard；nit 一組 light。verifier 拿到 entry、上一輪 verdict、該 comment thread 的作者回覆。
+- **status**：`fixed`、`still present`、`partial`、`accepted`（作者不修且理由成立）、`disputed`（作者不修但理由不成立，並列雙方）。
+- **報告**：header 標 round 與對比 head；「Previous items」每條一行，仍有問題的展開；其他部分只放新 entry；verdict 只算仍存在 + 新問題。
+- **貼回 PR**：舊問題回原 thread（`fixed`/`accepted` 一行確認），新問題開新 comment；所有貼文記在 `posted.md`，供下一輪找 thread。貼出仍需使用者逐則同意。
+- **實作**：`references/follow-up.md`；`SKILL.md` 只改 Step 0（`--full`、resume 分支）與貼文記錄；`GLOSSARY.md` 新增 Follow-up review。
+- 未驗證：尚未實跑；`range-diff` 配對失敗的判斷（「大多數」）是否夠明確。
+
+### 第 11 輪（2026-11-25）：降成本 + follow-up 修正（依 group-stellar-lib-pr-470 兩輪數據，見 cost-analysis.md）
+
+- **nit 不驗**：所有 nit 標 `verify: skipped (nit)`，排序寫進 `nits.md`，報告列在「nit, not verified」。取消 nit 上限與 light tier（已無步驟用到）。
+- **lens 合併**：finder 只剩兩個、都 strongest：`main`（goal、regression、edge、design，條件成立加 drift）→ `sweep`。diff 扣掉測試檔（tests、fixtures、snapshots）後超過約 1,500 行時 `main` 拆成 `main-a`（goal、regression、drift）與 `main-b`（edge、design）並行。lens 定義不變，finding 仍標 lens。
+- **verifier 分大組**：must-fix 一組 strongest、其餘一組 standard；超過約 10 條才拆，同 cause 檔放一起。Review set 的 verifier 每個涉及的 member 各開一個 worktree。
+- **follow-up 修正**：
+  - 升級不再看 delta 行數（`main` 已涵蓋所有 lens），只看 Goal 變動與 range-diff 配對失敗。
+  - 舊 round 沒有 `posted.md`：從 PR 上 reviewing account 的 comment 與 state.md 的貼文紀錄重建。
+  - 沒有新 commit 的 member：舊項目沿用，除非作者在 thread 有新回覆。
+  - 舊項目重驗不等 finder，step 2 開始時就與 `main` 並行派出。
+  - 舊 nit 不重驗，只記 delta 有沒有碰到 cause 行。
+- **usage**：被中斷的 run 自己一行標 `interrupted`，續跑或重跑另記一行。
+- 預估 round 1 成本從約 2.9M 降到約 1M；未實測。風險：單一 `main` finder 在大 Review set 上可能變淺；nit 被低估成 nit 的 should-fix 會漏驗。
+
 ### 待處理觀察（2026-11-24，stellar-enforce PR #1072 試跑）
 
 - 12 個 subagent、約 1.38M tokens，PR 只有 +85/−30。大宗是 finder 深入讀跨 repo（lib、deploy）程式碼，且不少 finding 其實是 lib 的問題，在 consumer PR 又找一次。→ 第 8 輪：一次審多個相關 PR。

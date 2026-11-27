@@ -173,6 +173,14 @@ Status: needs-triage
 - **usage**：被中斷的 run 自己一行標 `interrupted`，續跑或重跑另記一行。
 - 預估 round 1 成本從約 2.9M 降到約 1M；未實測。風險：單一 `main` finder 在大 Review set 上可能變淺；nit 被低估成 nit 的 should-fix 會漏驗。
 
+### 第 12 輪（2026-11-26）：再降成本（依 group-stellar-docker-pr-55、stellar-release-pr-310，見 cost-analysis.md）
+
+- 拆 `main-a`/`main-b` 的 1,500 行門檻不算測試檔（tests、fixtures、snapshots）。
+- **goal 與 fact pack 合成一個 standard subagent**，兩個檔案照舊；`confirmed:` 在它回來後設定。
+- **suspicion 不驗**：跟 nit 一樣標 `verify: skipped (suspicion)`，report 在 nit 之後列成「suspicion, not verified」。兩次累計 18 筆 suspicion 沒有一筆成為 must/should-fix。follow-up 舊 suspicion 比照舊 nit，只記 cause 有沒有被碰到。
+- **verifier 拆組門檻從約 10 筆改成約 15 筆**：兩次都在 11 筆時被拆，且違反同檔同組。
+- 風險：suspicion 裡若藏著真問題，現在只會以未驗證的一行出現。
+
 ### 待處理觀察（2026-11-24，stellar-enforce PR #1072 試跑）
 
 - 12 個 subagent、約 1.38M tokens，PR 只有 +85/−30。大宗是 finder 深入讀跨 repo（lib、deploy）程式碼，且不少 finding 其實是 lib 的問題，在 consumer PR 又找一次。→ 第 8 輪：一次審多個相關 PR。
